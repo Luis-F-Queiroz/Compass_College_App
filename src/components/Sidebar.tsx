@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", ic: "◎" },
@@ -30,11 +31,14 @@ export default function Sidebar() {
           <span className="sub">College application hub</span>
         </div>
       </div>
-      <nav className="nav">
+      <nav className="nav" aria-label="Primary">
         {NAV.map((n) => {
           const active = path === n.href || path.startsWith(n.href + "/");
           return (
-            <Link key={n.href} href={n.href} className={"nav-item" + (active ? " active" : "")}>
+            <Link key={n.href} href={n.href} className={"nav-item" + (active ? " active" : "")} aria-current={active ? "page" : undefined}>
+              {active && (
+                <motion.div layoutId="navActive" className="nav-pill" transition={{ type: "spring", stiffness: 500, damping: 40 }} />
+              )}
               <span className="ic">{n.ic}</span>
               <span>{n.label}</span>
             </Link>

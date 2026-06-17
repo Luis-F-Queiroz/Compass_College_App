@@ -1,0 +1,246 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import Modal from "@/components/Modal";
+import CollegeLogo from "@/components/CollegeLogo";
+import { useToast } from "@/components/Toast";
+import { useCollection, type Row } from "@/hooks/useCollection";
+import { SPECS, type Spec } from "@/lib/specs";
+
+const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function fmtDate(s: unknown) {
+  if (!s || typeof s !== "string") return "—";
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return String(s);
+  return `${M[+m[2] - 1]} ${+m[3]}, ${m[1]}`;
+}
+function toForm(spec: Spec, row: Partial<Row>): Record<string, string> {
+  const f: Record<string, string> = {};
+  for (const fl of spec.fields) {
+    const v = row[fl.k];
+    if (fl.type === "tags") f[fl.k] = Array.isArray(v) ? (v as unknown[]).join(", ") : v ? String(v) : "";
+    else f[fl.k] = v === undefined || v === null ? "" : String(v);
+  }
+  return f;
+}
+function fromForm(spec: Spec, form: Record<string, string>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const fl of spec.fields) {
+    const raw = (form[fl.k] ?? "").trim();
+    if (fl.type === "number") {
+      const n = Number(raw);
+      out[fl.k] = raw === "" || !Number.isFinite(n) ? null : n;
+    } else if (fl.type === "tags") {
+      out[fl.k] = raw === "" ? [] : raw.split(",").map((s) => s.trim()).filter(Boolean);
+    } else out[fl.k] = raw === "" ? null : raw;
+  }
+  return out;
+}
+
+export default function EntityScreen({ entity }: { entity: string }) {
+  const spec = SPECS[entity];
+  const { rows, loading, create, update, remove } = useCollection(spec.table);
+  const [editing, setEditing] = useState<Row | "new" | null>(null);
+  const toast = useToast();
+
+  return (
+    <>
+      <div className="topbar">
+        <div><h1>{spec.title}</h1></div>
+        <div className="toolbar">
+          <button className="btn primary" onClick={() => setEditing("new")}>+ Add {spec.singular}</button>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-b" style={{ paddingTop: 10 }}>
+          {loading ? (
+            <div aria-busy="true">
+              {[0, 1, 2, 3].map((i) => (
+                <span key={i} className="skel skel-row" style={{ width: i % 2 ? "62%" : "82%" }} />
+              ))}
+            </div>
+          ) : rows.length === 0 ? (
+            <div className="empty">
+              <div className="big">No {spec.title.toLowerCase()} yet</div>
+              {`Add your first ${spec.singular}.`}
+            </div>
+          ) : (
+            <div className="tbl-wrap">
+              <table className="tbl">
+                <thead>
+                  <tr>{spec.columns.map((c) => <th key={c.k}>{c.label}</th>)}<th /></tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence initial={false}>
+                    {rows.map((r) => (
+                      <motion.tr key={r.id} className="clickable" onClick={() => setEditing(r)}
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.16 }}>
+                        {spec.columns.map((c, i) => (
+                          <td key={c.k}>
+                            {i === 0 && spec.logo ? (
+                              <span style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                                <CollegeLogo name={String(r.name || "")} websiteUrl={r.website_url as string} logoUrl={r.logo_url as string} size={30} />
+                                <span className="strong">{String(r[c.k] ?? "—")}</span>
+                              </span>
+                            ) : c.type === "date" ? (
+                              <span className="nowrap">{fmtDate(r[c.k])}</span>
+                            ) : c.type === "chip" ? (
+                              r[c.k] ? <span className="chip">{String(r[c.k])}</span> : <span className="muted">—</span>
+                            ) : i === 0 ? (
+                              <span className="strong">{String(r[c.k] ?? "—")}</span>
+                            ) : (
+                              <span>{r[c.k] == null || r[c.k] === "" ? <span className="muted">—</span> : String(r[c.k])}</span>
+                            )}
+                          </td>
+                        ))}
+                        <td className="t-actions" onClick={(e) => e.stopPropagation()}>
+                          <button className="btn-sm" onClick={() => setEditing(r)}>Edit</button>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {editing && (
+        <EntityForm
+          spec={spec}
+          record={editing === "new" ? null : editing}
+          onClose={() => setEditing(null)}
+          onCreate={async (v) => { await create(v); toast(`Added ${spec.singular}`); setEditing(null); }}
+          onUpdate={update}
+          onDelete={async (id) => { await remove(id); toast("Deleted"); setEditing(null); }}
+        />
+      )}
+    </>
+  );
+}
+
+function EntityForm({
+  spec, record, onClose, onCreate, onUpdate, onDelete,
+}: {
+  spec: Spec;
+  record: Row | null;
+  onClose: () => void;
+  onCreate: (v: Record<string, unknown>) => Promise<void>;
+  onUpdate: (id: string, v: Record<string, unknown>) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const isEdit = !!record;
+  const [form, setForm] = useState<Record<string, string>>(() => toForm(spec, record || {}));
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [err, setErr] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const formRef = useRef(form);
+  formRef.current = form;
+  const dirty = useRef(false);
+
+  // Flush any pending edit on unmount (Done / Esc / scrim) so the last keystrokes are never lost.
+  useEffect(() => {
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+      if (savedTimer.current) clearTimeout(savedTimer.current);
+      if (isEdit && record && dirty.current) {
+        dirty.current = false;
+        onUpdate(record.id, fromForm(spec, formRef.current)).catch(() => {});
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const set = (k: string, v: string) => {
+    const next = { ...formRef.current, [k]: v };
+    setForm(next);
+    formRef.current = next;
+    if (isEdit && record) {
+      dirty.current = true;
+      setSaveState("saving");
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(async () => {
+        try {
+          await onUpdate(record.id, fromForm(spec, formRef.current));
+          dirty.current = false;
+          setSaveState("saved");
+          if (savedTimer.current) clearTimeout(savedTimer.current);
+          savedTimer.current = setTimeout(() => setSaveState("idle"), 1600);
+        } catch (e) {
+          setSaveState("error");
+          setErr("Couldn't save — " + (e as Error).message);
+        }
+      }, 500);
+    }
+  };
+
+  const req = spec.fields.find((f) => f.required);
+  const submitNew = async () => {
+    if (req && !(form[req.k] || "").trim()) { setErr(req.label + " is required."); return; }
+    try { await onCreate(fromForm(spec, form)); } catch (e) { setErr("Could not save — " + (e as Error).message); }
+  };
+  const doDelete = async () => {
+    if (!record) return;
+    try { await onDelete(record.id); } catch (e) { setConfirming(false); setErr("Delete failed — " + (e as Error).message); }
+  };
+
+  const footer = isEdit ? (
+    <>
+      {confirming ? (
+        <span className="inline-confirm">
+          <span className="muted" style={{ fontSize: 13 }}>Delete — can&apos;t be undone.</span>
+          <button className="btn-sm" onClick={() => setConfirming(false)}>Cancel</button>
+          <button className="btn-sm danger" onClick={doDelete}>Delete</button>
+        </span>
+      ) : (
+        <button className="btn danger" onClick={() => setConfirming(true)}>Delete</button>
+      )}
+      <span style={{ flex: 1 }} />
+      <span className="muted" style={{ fontSize: 13, alignSelf: "center", color: saveState === "error" ? "var(--danger)" : undefined }}>
+        {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved ✓" : saveState === "error" ? "Save failed" : ""}
+      </span>
+      <button className="btn primary" onClick={onClose}>Done</button>
+    </>
+  ) : (
+    <>
+      <button className="btn" onClick={onClose}>Cancel</button>
+      <button className="btn primary" onClick={submitNew}>Add {spec.singular}</button>
+    </>
+  );
+
+  return (
+    <Modal open onClose={onClose} title={(isEdit ? "Edit " : "New ") + spec.singular} footer={footer} wide={spec.fields.length > 6}>
+      <div className="form">
+        {spec.fields.map((fl) => {
+          const full = fl.type === "textarea" || fl.type === "tags" || fl.required;
+          return (
+            <div className={"field" + (full ? " full" : "")} key={fl.k}>
+              <label htmlFor={"f-" + fl.k}>{fl.label}{fl.required && <span style={{ color: "var(--danger)" }}> *</span>}</label>
+              {fl.type === "textarea" ? (
+                <textarea id={"f-" + fl.k} value={form[fl.k] || ""} onChange={(e) => set(fl.k, e.target.value)} />
+              ) : fl.type === "select" ? (
+                <select id={"f-" + fl.k} value={form[fl.k] || ""} onChange={(e) => set(fl.k, e.target.value)}>
+                  <option value="" />
+                  {fl.options!.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ) : (
+                <input
+                  id={"f-" + fl.k}
+                  type={fl.type === "number" ? "number" : fl.type === "date" ? "date" : fl.type === "url" ? "url" : "text"}
+                  required={fl.required}
+                  value={form[fl.k] || ""}
+                  onChange={(e) => set(fl.k, e.target.value)}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {err && <div style={{ color: "var(--danger)", fontSize: 13, marginTop: 10 }}>{err}</div>}
+    </Modal>
+  );
+}
