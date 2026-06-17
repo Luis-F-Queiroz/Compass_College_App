@@ -203,6 +203,8 @@ export npm_config_cache=/tmp/compass-npm-cache
 npm run build
 ```
 
+**Local browser preview (optional, for UI changes).** To eyeball a change in a real browser before deploying, start the dev server with the preview tool: the workspace `.claude/launch.json` defines a single config, **`compass-app`** (`npm run dev`, port 3000). There is deliberately only one config — a legacy `compass` entry that statically served the superseded v1 `compass/index.html` was removed, because previewing it returns a bare "not found" for every real route and looks like the whole app is broken. Use `compass-app`, never assume `compass`.
+
 Then deploy:
 
 ```bash

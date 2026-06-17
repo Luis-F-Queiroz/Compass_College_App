@@ -50,7 +50,8 @@ export const DETAIL_SECTIONS: { title: string; fields: DField[] }[] = [
   {
     title: "Admissions",
     fields: [
-      { k: "sat_percentiles", label: "SAT — range / median", type: "text" },
+      { k: "sat_range", label: "SAT range (mid 50%)", type: "text" },
+      { k: "sat_median", label: "SAT median", type: "text" },
       { k: "acceptance_rate", label: "Acceptance rate (%)", type: "number" },
       { k: "overall_grade", label: "Overall grade", type: "grade" },
     ],
