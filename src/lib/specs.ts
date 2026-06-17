@@ -17,13 +17,14 @@ export type Spec = {
   title: string;
   singular: string;
   logo?: boolean;
+  detail?: boolean; // shows a "Learn More" link → /<table>/<id> detail page
   columns: Column[];
   fields: Field[];
 };
 
 export const SPECS: Record<string, Spec> = {
   colleges: {
-    table: "colleges", title: "Colleges", singular: "college", logo: true,
+    table: "colleges", title: "Colleges", singular: "college", logo: true, detail: true,
     columns: [
       { k: "name", label: "College" },
       { k: "application_round", label: "Round", type: "chip" },

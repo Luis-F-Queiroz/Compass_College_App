@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import Modal from "@/components/Modal";
 import CollegeLogo from "@/components/CollegeLogo";
 import { useToast } from "@/components/Toast";
@@ -95,6 +96,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
                           </td>
                         ))}
                         <td className="t-actions" onClick={(e) => e.stopPropagation()}>
+                          {spec.detail && <Link className="btn-sm" href={`/${spec.table}/${r.id}`} style={{ marginRight: 6 }}>Learn More</Link>}
                           <button className="btn-sm" onClick={() => setEditing(r)}>Edit</button>
                         </td>
                       </motion.tr>

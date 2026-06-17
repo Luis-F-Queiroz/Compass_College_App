@@ -1,0 +1,25 @@
+-- 0002: per-college "Learn More" research framework fields (from Luis's Excel research sheet)
+-- RLS unchanged — existing colleges policies (auth.uid() = user_id) already cover every column.
+alter table public.colleges
+  add column if not exists location_climate_population text,
+  add column if not exists location_grade text,
+  add column if not exists majors text,
+  add column if not exists minors text,
+  add column if not exists major_classes text,
+  add column if not exists gen_ed_classes text,
+  add column if not exists honors_and_programs text,
+  add column if not exists academic_grade text,
+  add column if not exists student_body text,
+  add column if not exists culture text,
+  add column if not exists clubs text,
+  add column if not exists social_grade text,
+  add column if not exists pros text,
+  add column if not exists cons text,
+  add column if not exists after_college text,
+  add column if not exists target_status text,
+  add column if not exists value_grade text,
+  add column if not exists business_school_rank integer,
+  add column if not exists business_major_school text,
+  add column if not exists sat_percentiles text,
+  add column if not exists acceptance_rate numeric,
+  add column if not exists overall_grade text;
