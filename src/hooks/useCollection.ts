@@ -20,6 +20,7 @@ export function useCollection(table: string) {
     const { data } = await supabase()
       .from(table)
       .select("*")
+      .eq("archived", false) // hide archived (sync-archived or soft-deleted) rows; they are never destroyed
       .order("created_at", { ascending: false });
     setRows((data as Row[]) || []);
     setLoading(false);
@@ -55,11 +56,18 @@ export function useCollection(table: string) {
 
   const remove = useCallback(
     async (id: string) => {
-      const { error } = await supabase().from(table).delete().eq("id", id);
+      // Synced rows (provenance set) are ARCHIVED, not deleted: keeps them recoverable and stops the
+      // next sync from resurrecting them by source_ref. Manually-created rows hard-delete as before.
+      const row = rows.find((r) => r.id === id);
+      const synced = row && row.source != null;
+      const q = supabase().from(table);
+      const { error } = synced
+        ? await q.update({ archived: true }).eq("id", id)
+        : await q.delete().eq("id", id);
       if (error) throw error;
       await refresh();
     },
-    [table, refresh],
+    [table, refresh, rows],
   );
 
   return { rows, loading, create, update, remove, refresh, authed: !!session };

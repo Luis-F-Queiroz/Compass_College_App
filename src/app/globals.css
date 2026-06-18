@@ -150,3 +150,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .dash-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px;align-items:start}
 @media (max-width:860px){.dash-cols{grid-template-columns:1fr}}
 .inline-confirm{display:flex;align-items:center;gap:8px}
+/* sync dashboard */
+.review-item{padding:14px 0;border-bottom:1px solid var(--divider)}
+.review-item:last-child{border-bottom:none}
+.review-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.conflict-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;flex-wrap:wrap}
+.conflict-actions{display:flex;gap:6px}
+.coverage{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.coverage-cell{background:var(--parchment);border-radius:var(--r-md);padding:16px 12px;text-align:center}
+.coverage-n{font-size:28px;font-weight:600;letter-spacing:-0.6px;color:var(--ink)}
+.coverage-l{font-size:13px;color:var(--ink-48);margin-top:2px}
+@media (max-width:560px){.coverage{grid-template-columns:repeat(2,1fr)}}

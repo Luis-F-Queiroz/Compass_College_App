@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types --test scripts/sync-engine.test.ts",
+    "sync": "node --experimental-strip-types scripts/sync.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

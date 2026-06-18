@@ -1,0 +1,3 @@
+# Audit packages hold personal data — keep the dir, never commit its contents.
+*
+!.gitignore

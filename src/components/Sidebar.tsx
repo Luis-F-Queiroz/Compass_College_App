@@ -11,6 +11,7 @@ const NAV = [
   { href: "/activities", label: "Activities", ic: "★" },
   { href: "/ideas", label: "Ideas", ic: "✦" },
   { href: "/profile", label: "Profile", ic: "◉" },
+  { href: "/sync", label: "Sync", ic: "⟳" },
   { href: "/settings", label: "Settings", ic: "⚙" },
 ];
 
