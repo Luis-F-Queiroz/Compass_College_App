@@ -70,9 +70,10 @@ export function gradeChip(g?: string | null) {
 export function targetChip(t?: string | null) {
   if (!t) return "dim";
   const x = String(t).toLowerCase();
-  if (x.startsWith("target")) return "ok";
-  if (x.startsWith("semi")) return "warn";
-  return "danger"; // non-target
+  if (x.includes("non")) return "danger"; // non-target
+  if (x.includes("semi")) return "warn"; // semi / lower semi-target
+  if (x.includes("target")) return "ok";
+  return "dim";
 }
 export function yesNoChip(v?: string | null) {
   return /^\s*yes/i.test(String(v || "")) ? "ok" : "warn";

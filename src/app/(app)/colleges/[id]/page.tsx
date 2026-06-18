@@ -1,17 +1,22 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import CollegeLogo from "@/components/CollegeLogo";
 import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
-import { DETAIL_SECTIONS, GRADES, TARGET, gradeChip, targetChip, yesNoChip } from "@/lib/collegeDetail";
+import { DETAIL_SECTIONS, gradeChip, targetChip } from "@/lib/collegeDetail";
 
+// Read-only research view. The Learn More fields are maintained in CoWork / the database, NOT edited
+// here — this page only displays them.
 function fmtPct(v: any) {
   const n = Number(v);
   if (!Number.isFinite(n)) return String(v);
   return n + "%";
+}
+function isEmpty(v: any) {
+  return v === null || v === undefined || v === "";
 }
 
 export default function CollegeDetail() {
@@ -20,10 +25,6 @@ export default function CollegeDetail() {
   const { session } = useAuth();
   const [c, setC] = useState<Record<string, any> | null>(null);
   const [missing, setMissing] = useState(false);
-  const [state, setState] = useState<"idle" | "saving" | "saved">("idle");
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cRef = useRef<Record<string, any> | null>(null);
-  cRef.current = c;
 
   useEffect(() => {
     if (!session || !id) return;
@@ -51,17 +52,7 @@ export default function CollegeDetail() {
     );
   }
 
-  const setField = (k: string, v: any) => {
-    const next = { ...cRef.current, [k]: v };
-    setC(next);
-    cRef.current = next;
-    setState("saving");
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      const { error } = await supabase().from("colleges").update({ [k]: v === "" ? null : v }).eq("id", id);
-      setState(error ? "idle" : "saved");
-    }, 500);
-  };
+  const hasResearch = DETAIL_SECTIONS.some((s) => s.fields.some((f) => !isEmpty(c[f.k])));
 
   return (
     <>
@@ -73,13 +64,17 @@ export default function CollegeDetail() {
             <h1 style={{ margin: 0 }}>{c.name}</h1>
             {c.overall_grade && <span className={"chip " + gradeChip(c.overall_grade)}>Overall {c.overall_grade}</span>}
             {c.target_status && <span className={"chip " + targetChip(c.target_status)}>{c.target_status}</span>}
-            {c.acceptance_rate != null && c.acceptance_rate !== "" && <span className="chip dim">{fmtPct(c.acceptance_rate)} accept</span>}
+            {!isEmpty(c.acceptance_rate) && <span className="chip dim">{fmtPct(c.acceptance_rate)} accept</span>}
           </div>
         </div>
         <div className="toolbar">
-          <span className="muted" style={{ fontSize: 13 }}>{state === "saving" ? "Saving…" : state === "saved" ? "Saved ✓" : ""}</span>
+          <span className="muted" style={{ fontSize: 13 }}>Read-only · maintained in CoWork</span>
         </div>
       </div>
+
+      {!hasResearch && (
+        <div className="card"><div className="card-b"><div className="empty"><div className="big">No research yet</div>This college&apos;s Learn More is filled in through CoWork.</div></div></div>
+      )}
 
       {DETAIL_SECTIONS.map((sec) => (
         <div className="card" key={sec.title}>
@@ -87,42 +82,25 @@ export default function CollegeDetail() {
           <div className="card-b" style={{ paddingTop: 14 }}>
             <div className="form">
               {sec.fields.map((f) => {
+                const val = c[f.k];
                 const full = f.type === "long";
                 return (
                   <div className={"field" + (full ? " full" : "")} key={f.k}>
-                    <label htmlFor={"d-" + f.k}>{f.label}</label>
-                    {f.type === "long" ? (
-                      <textarea id={"d-" + f.k} value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value)} style={{ minHeight: 80 }} />
+                    <label>{f.label}</label>
+                    {isEmpty(val) ? (
+                      <span className="muted ro-val">—</span>
+                    ) : f.type === "long" ? (
+                      <div className="ro-text">{String(val)}</div>
                     ) : f.type === "grade" ? (
-                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        <select id={"d-" + f.k} value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value)} style={{ maxWidth: 120 }}>
-                          <option value="" />
-                          {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
-                        </select>
-                        {c[f.k] && <span className={"chip " + gradeChip(c[f.k])}>{c[f.k]}</span>}
-                      </div>
+                      <span><span className={"chip " + gradeChip(val)}>{String(val)}</span></span>
                     ) : f.type === "target" ? (
-                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        <select id={"d-" + f.k} value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value)} style={{ maxWidth: 170 }}>
-                          <option value="" />
-                          {TARGET.map((t) => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                        {c[f.k] && <span className={"chip " + targetChip(c[f.k])}>{c[f.k]}</span>}
-                      </div>
+                      <span><span className={"chip " + targetChip(val)}>{String(val)}</span></span>
                     ) : f.type === "percent" ? (
-                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <input id={"d-" + f.k} type="number" value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value === "" ? "" : Number(e.target.value))} style={{ maxWidth: 120 }} />
-                        <span className="muted">%</span>
-                      </div>
+                      <span className="ro-val">{fmtPct(val)}</span>
                     ) : f.type === "number" ? (
-                      <input id={"d-" + f.k} type="number" value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value === "" ? "" : Number(e.target.value))} />
+                      <span className="ro-val">#{String(val)}</span>
                     ) : (
-                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        <input id={"d-" + f.k} type="text" value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value)} />
-                        {f.k === "business_major_school" && c[f.k] && (
-                          <span className={"chip " + yesNoChip(c[f.k])}>{/^\s*yes/i.test(String(c[f.k])) ? "Yes" : "No"}</span>
-                        )}
-                      </div>
+                      <span className="ro-val">{String(val)}</span>
                     )}
                   </div>
                 );
