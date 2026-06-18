@@ -22,13 +22,15 @@ export type Spec = {
   singular: string;
   logo?: boolean;
   detail?: boolean; // shows a "Learn More" link → /<table>/<id> detail page
+  readonly?: boolean; // view-only on the site (no add/edit/delete UI); maintained via CoWork/code
+  essays?: boolean; // an institution that has supplemental essays → shows an "Essays" button per row
   columns: Column[];
   fields: Field[];
 };
 
 export const SPECS: Record<string, Spec> = {
   colleges: {
-    table: "colleges", title: "Colleges", singular: "college", logo: true, detail: true,
+    table: "colleges", title: "Colleges", singular: "college", logo: true, detail: true, readonly: true, essays: true,
     columns: [
       { k: "name", label: "College" },
       { k: "application_round", label: "Round", type: "chip" },
@@ -147,7 +149,7 @@ export const SPECS: Record<string, Spec> = {
     ],
   },
   summer_programs: {
-    table: "summer_programs", title: "Summer Programs", singular: "program", logo: true,
+    table: "summer_programs", title: "Summer Programs", singular: "program", logo: true, readonly: true, essays: true,
     columns: [
       { k: "name", label: "Program" },
       { k: "focus", label: "Focus" },

@@ -492,6 +492,29 @@ website. CoWork maintains the 22 research fields directly in the `colleges` tabl
 - Many colleges are still empty (their Learn More shows "—"). Fill the research (location, majors,
   pros/cons, grades, etc.) the same way. Map only into existing columns; never invent data.
 
+## Supplemental essays + Google Docs
+
+Colleges and summer programs are **read-only on the site** (`readonly` in their `src/lib/specs.ts`
+spec) — no add/edit/delete in the UI; maintained via CoWork/code. Each college/program row has an
+**Essays** button opening a per-institution supplements panel (`src/components/SupplementPanel.tsx`).
+
+- **Supplements live in the `essays` table**, linked to the institution by `parent_type`
+  (`'college'|'summer_program'`) + `parent_id` (migration 0008). Per supplement: `title` (the prompt
+  *topic*, e.g. "Why this school?"), `prompt_text` (the **exact** prompt — fill the real one, never
+  invent it), `word_limit`, `status` (ESSAY_STATUS), `deadline`, `is_reusable`, `google_doc_url`.
+  CoWork can populate supplements + exact prompts directly (set `user_id`, `parent_type`, `parent_id`).
+- **Google Docs (auto-create).** The "Create Google Doc" button calls `POST /api/create-doc`
+  (`src/app/api/create-doc/route.ts`), which creates a Doc, shares it **anyone-with-link = editor**,
+  and saves the link; the button then **opens** the saved Doc. It needs a Google service account:
+  1. Google Cloud Console → new/existing project → **enable the Google Drive API**.
+  2. Create a **service account** → **Keys** → add key → JSON (downloads a key file).
+  3. In Vercel → project **compass-college-app** → Settings → **Environment Variables** (Production), add:
+     `GOOGLE_SERVICE_ACCOUNT_EMAIL` = the service-account email (`…@….iam.gserviceaccount.com`), and
+     `GOOGLE_SERVICE_ACCOUNT_KEY` = the JSON's `private_key` value (the whole `-----BEGIN PRIVATE KEY-----…` block).
+  4. Redeploy. Until then the button shows a friendly "not set up yet" notice (no crash).
+  Note: Docs are created in the **service account's** Drive and accessed via the saved link (not Luis's
+  personal Drive). The endpoint only creates blank Docs.
+
 ## Backlog Cowork can pick up
 
 Ready-to-build items using the existing schema-driven pattern (spec + nav + route file, plus migration only if a new column/table is involved):

@@ -7,6 +7,7 @@ import CollegeLogo from "@/components/CollegeLogo";
 import { useToast } from "@/components/Toast";
 import { useCollection, type Row } from "@/hooks/useCollection";
 import { SPECS, type Spec } from "@/lib/specs";
+import SupplementPanel from "@/components/SupplementPanel";
 
 const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 function fmtDate(s: unknown) {
@@ -43,6 +44,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
   const { rows, loading, create, update, remove, refresh, fetchArchived } = useCollection(spec.table);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
   const [archivedRows, setArchivedRows] = useState<Row[] | null>(null); // null = panel hidden
+  const [essaysFor, setEssaysFor] = useState<Row | null>(null); // institution whose supplements panel is open
   const toast = useToast();
 
   const toggleArchived = async () => {
@@ -61,8 +63,14 @@ export default function EntityScreen({ entity }: { entity: string }) {
       <div className="topbar">
         <div><h1>{spec.title}</h1></div>
         <div className="toolbar">
-          <button className="btn" onClick={toggleArchived}>{archivedRows !== null ? "Hide archived" : "Show archived"}</button>
-          <button className="btn primary" onClick={() => setEditing("new")}>+ Add {spec.singular}</button>
+          {spec.readonly ? (
+            <span className="muted" style={{ fontSize: 13 }}>Read-only · maintained in CoWork</span>
+          ) : (
+            <>
+              <button className="btn" onClick={toggleArchived}>{archivedRows !== null ? "Hide archived" : "Show archived"}</button>
+              <button className="btn primary" onClick={() => setEditing("new")}>+ Add {spec.singular}</button>
+            </>
+          )}
         </div>
       </div>
 
@@ -77,7 +85,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
           ) : rows.length === 0 ? (
             <div className="empty">
               <div className="big">No {spec.title.toLowerCase()} yet</div>
-              {`Add your first ${spec.singular}.`}
+              {spec.readonly ? "Added via CoWork." : `Add your first ${spec.singular}.`}
             </div>
           ) : (
             <div className="tbl-wrap">
@@ -88,7 +96,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
                 <tbody>
                   <AnimatePresence initial={false}>
                     {rows.map((r) => (
-                      <motion.tr key={r.id} className="clickable" onClick={() => setEditing(r)}
+                      <motion.tr key={r.id} className={spec.readonly ? "" : "clickable"} onClick={() => { if (!spec.readonly) setEditing(r); }}
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.16 }}>
                         {spec.columns.map((c, i) => (
                           <td key={c.k}>
@@ -109,8 +117,9 @@ export default function EntityScreen({ entity }: { entity: string }) {
                           </td>
                         ))}
                         <td className="t-actions" onClick={(e) => e.stopPropagation()}>
+                          {spec.essays && <button className="btn-sm" onClick={() => setEssaysFor(r)} style={{ marginRight: 6 }}>Essays</button>}
                           {spec.detail && <Link className="btn-sm" href={`/${spec.table}/${r.id}`} style={{ marginRight: 6 }}>Learn More</Link>}
-                          <button className="btn-sm" onClick={() => setEditing(r)}>Edit</button>
+                          {!spec.readonly && <button className="btn-sm" onClick={() => setEditing(r)}>Edit</button>}
                         </td>
                       </motion.tr>
                     ))}
@@ -164,6 +173,14 @@ export default function EntityScreen({ entity }: { entity: string }) {
           onUpdate={update}
           onArchive={async (id) => { await update(id, { archived: true }); toast("Archived"); setEditing(null); if (archivedRows !== null) setArchivedRows(await fetchArchived()); }}
           onDelete={async (id) => { await remove(id); toast("Deleted"); setEditing(null); }}
+        />
+      )}
+
+      {essaysFor && (
+        <SupplementPanel
+          institution={essaysFor}
+          parentType={spec.table === "summer_programs" ? "summer_program" : "college"}
+          onClose={() => setEssaysFor(null)}
         />
       )}
     </>

@@ -186,6 +186,18 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 /* read-only research display (college Learn More) */
 .ro-text{white-space:pre-wrap;font-size:15px;line-height:1.55;color:var(--ink-80)}
 .ro-val{font-size:15px;color:var(--ink)}
+/* supplement (essays) panel */
+.supp-list{display:flex;flex-direction:column}
+.supp-item{padding:14px 0;border-bottom:1px solid var(--divider)}
+.supp-item:first-child{padding-top:2px}
+.supp-item:last-child{border-bottom:none;padding-bottom:2px}
+.supp-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.supp-prompt{font-size:14px;line-height:1.5;color:var(--ink-80);margin:0 0 10px;white-space:pre-wrap}
+.supp-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-sm.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-sm.primary:hover{background:var(--blue-press)}
+.btn-sm.danger{color:var(--danger)}
+.check-row{display:flex;align-items:center;gap:8px;font-size:14px}
 /* print: isolate the report card */
 @media print{
   .no-print{display:none !important}
