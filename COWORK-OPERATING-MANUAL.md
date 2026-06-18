@@ -31,14 +31,18 @@ git push -u origin <short-descriptive-branch>
 # 3. Hosting: deploy to Vercel production
 npx --yes vercel@latest deploy --prod --yes
 
-# 4. VERIFY (never skip): 401 = Deployment Protection (expected), 200/307 = open,
-#    5xx = real failure. Then open the changed route.
-curl -sI <production-url>
+# 4. VERIFY (never skip): 200/307 = live (the site is PUBLIC), 5xx = real failure,
+#    401 = the Vercel auth wall (only if protection was re-enabled). Then open the route.
+curl -sI https://luiscollegeapp.vercel.app
 ```
 
-Migrations are a **separate surface** — apply them via the Supabase MCP `apply_migration` tool AND save a numbered `.sql` in `supabase/migrations/` (see §Deploy Ops 4). A login/SSO wall on the live URL is **Deployment Protection** — expected until Luis toggles it off by hand, not a failed deploy.
+Migrations are a **separate surface** — apply them via the Supabase MCP `apply_migration` tool AND save a numbered `.sql` in `supabase/migrations/` (see §Deploy Ops 4). The live URL is **https://luiscollegeapp.vercel.app** and is **public** (Vercel Deployment Protection is off); a first-time visitor on a new device meets the app-level access-code gate (`src/components/AccessGate.tsx`), not a Vercel wall. A 401 would mean protection was turned back on.
 
 ---
+
+## Keeping CoWork in sync (handoff prompts)
+
+CoWork is the primary workspace and source of truth; this website is a downstream layer. So **every time Claude Code changes the site** — a feature, a deploy, a schema or domain change, a config flip — it hands Luis **one paste-in prompt** that tells CoWork what changed and how to operate within it, and that prompt **cites this manual**. This keeps CoWork current without re-deriving state. (Standing rule, recorded in Claude Code's memory.)
 
 ## Table of contents
 
@@ -70,7 +74,8 @@ Migrations are a **separate surface** — apply them via the Supabase MCP `apply
 | `package.json` scripts | `dev="next dev"`, `build="next build"`, `start="next start"`, `lint="eslint"` |
 | Default branch | `main` |
 | GitHub repo | `https://github.com/Luis-F-Queiroz/Compass_College_App` |
-| Vercel | project `compass-college-app`, team `luis-queiroz-s-projects` (CLI already authenticated) |
+| Vercel | project `compass-college-app` (id `prj_fIm1gwZAEL2DltEXvJ0IsQJF76wV`), team `luis-queiroz-s-projects` (CLI already authenticated). Project name is unchanged even though the domain changed. |
+| Live URL | **https://luiscollegeapp.vercel.app** — public; first visit on a new device prompts the app-level access code (`AccessGate`). (Old `compass-college-app.vercel.app` is retired / 404s.) |
 | Supabase | project ref `bubhsrgwaxolthihlqdd`, URL `https://bubhsrgwaxolthihlqdd.supabase.co` |
 | Schema baseline | `supabase/migrations/0001_init.sql` |
 
@@ -96,14 +101,13 @@ export npm_config_cache=/tmp/compass-npm-cache
 
 Set it once per shell and it persists for that session — but the working directory resets between Bash calls, so prefer the single-line `export npm_config_cache=/tmp/compass-npm-cache && <command>` form and use absolute paths. If you see an npm error mentioning `EACCES`, `permission denied`, or a path under `~/.npm`, you forgot this flag — re-run with it.
 
-### 2. The Vercel deployment is private — making it public is a manual toggle Luis does
+### 2. The site is PUBLIC at https://luiscollegeapp.vercel.app — entry is an app-level access code
 
-The project sits behind **Deployment Protection**, so production URLs return an auth/SSO wall to anyone but the owner. This is intentional:
+Vercel Deployment Protection is **off**, so the production URL is reachable by anyone. Access is now controlled in the app by `src/components/AccessGate.tsx`: a device that hasn't entered the access code sees a code screen; once entered it is remembered in `localStorage`; a new device (or cleared storage) re-prompts.
 
-- A successful `vercel deploy --prod` does **not** mean the site is publicly reachable. Don't tell Luis "it's live for everyone" off a green deploy.
-- While protection is ON, the production URL returns **HTTP 401** (an SSO wall) to a plain `curl`. That is the healthy, expected response — not a failure (see §6).
-- Toggling protection off is a **manual switch in the Vercel dashboard** (Project → Settings → Deployment Protection). **Only Luis can do this**; it cannot be reliably toggled via API/CLI — do not attempt to script it.
-- After deploy, verify the deploy itself (§6 below), then tell Luis explicitly if a protection change is needed and that he must flip it by hand.
+- A plain `curl -sI https://luiscollegeapp.vercel.app` returns **307** (redirect to `/dashboard`) — the healthy public response. A **401 would mean Vercel protection was turned back on**.
+- This gate is a **light shared-code lock, not security**: the code lives in the client bundle (and the repo is public), and the app auto-signs-in to the single account, so anyone past the gate has full read/write to the data. Do not treat it as authentication. The access code itself lives in `AccessGate.tsx` — don't duplicate it elsewhere.
+- Making it private again (re-enabling protection) is a manual dashboard toggle only Luis can do (Project → Settings → Deployment Protection); don't script it.
 
 ### 3. Security-sensitive actions trigger an auto-mode permission prompt — Luis must approve
 
