@@ -471,6 +471,18 @@ competition `status` ∈ Researching / Registered / In progress / Completed / No
 `status` ∈ Researching / Considering / Planning to apply / Applied / Accepted / Rejected / Waitlisted /
 Enrolled / Completed / Withdrawn. Removal uses the standard archive model (set `archived = true`).
 
+## College "Learn More" research (read-only on the site)
+
+The per-college **Learn More** page (`/colleges/<id>`) is **display-only** — it cannot be edited on the
+website. CoWork maintains the 22 research fields directly in the `colleges` table (Supabase MCP
+`update` / `insert`). Rules:
+- **Grades are letters (A+ … F), never numbers** — `overall_grade`, `academic_grade`, `location_grade`,
+  `social_grade`, `value_grade`. The chips/boxes are built for letters; a number won't display.
+- `target_status` is freeform (Target / Semi-target / Non-target, optionally annotated).
+- `acceptance_rate` is a number, rendered as a percent. SAT fields (`sat_range`, `sat_median`) are text.
+- Many colleges are still empty (their Learn More shows "—"). Fill the research (location, majors,
+  pros/cons, grades, etc.) the same way. Map only into existing columns; never invent data.
+
 ## Backlog Cowork can pick up
 
 Ready-to-build items using the existing schema-driven pattern (spec + nav + route file, plus migration only if a new column/table is involved):
