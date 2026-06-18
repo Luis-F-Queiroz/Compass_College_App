@@ -161,3 +161,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .coverage-n{font-size:28px;font-weight:600;letter-spacing:-0.6px;color:var(--ink)}
 .coverage-l{font-size:13px;color:var(--ink-48);margin-top:2px}
 @media (max-width:560px){.coverage{grid-template-columns:repeat(2,1fr)}}
+/* access gate */
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--parchment)}
+.gate-card{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:40px 34px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.06)}
+.gate-mark{line-height:0;margin-bottom:14px}
+.gate-title{font-size:24px;letter-spacing:-0.5px;margin:0}
+.gate-sub{font-size:14px;color:var(--ink-48);margin:6px 0 20px}
+.gate-input{width:100%;text-align:center;font-size:18px;letter-spacing:2px;padding:12px 14px;border:1px solid var(--hairline);border-radius:var(--r-md);background:var(--pearl);color:var(--ink)}
+.gate-input:focus-visible{outline:2px solid var(--blue-focus);outline-offset:2px}
+.gate-err{color:var(--danger);font-size:13px;margin-top:10px}
+.gate-btn{width:100%;margin-top:16px;display:flex;justify-content:center}
