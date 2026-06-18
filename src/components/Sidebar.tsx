@@ -9,6 +9,8 @@ const NAV = [
   { href: "/essays", label: "Essays", ic: "✎" },
   { href: "/tasks", label: "Tasks", ic: "✓" },
   { href: "/activities", label: "Activities", ic: "★" },
+  { href: "/competitions", label: "Competitions", ic: "✪" },
+  { href: "/summer_programs", label: "Summer Programs", ic: "❂" },
   { href: "/ideas", label: "Ideas", ic: "✦" },
   { href: "/profile", label: "Profile", ic: "◉" },
   { href: "/counselor", label: "Counselor", ic: "✉" },

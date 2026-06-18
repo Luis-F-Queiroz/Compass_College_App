@@ -79,7 +79,7 @@ CoWork is the primary workspace and source of truth; this website is a downstrea
 | Supabase | project ref `bubhsrgwaxolthihlqdd`, URL `https://bubhsrgwaxolthihlqdd.supabase.co` |
 | Schema baseline | `supabase/migrations/0001_init.sql` |
 
-**Data model.** Tables: `colleges`, `scholarship_deadlines`, `essays`, `essay_colleges`, `tasks`, `activities`, `ideas`, `profiles`. Every row has `user_id` and RLS (`auth.uid() = user_id`).
+**Data model.** Entity tables: `colleges`, `scholarship_deadlines`, `essays`, `essay_colleges`, `tasks`, `activities`, `ideas`, `profiles`, `competitions`, `summer_programs`, `counselor_reports`. Plus the sync ledger `sync_runs` / `sync_changes`. Every row has `user_id` and RLS (`auth.uid() = user_id`). Most entity tables carry `archived boolean` (0005/0007) — lists hide `archived = true` rows; an **Archive** button (next to Delete in the edit modal) sets it, and a **Show archived** toggle on each list unarchives. Archiving never deletes.
 
 **Schema-driven UI.** The UI is generated from `src/lib/specs.ts` (one field-spec per entity) rendered by the generic `src/components/EntityScreen.tsx` (table + animated modal + debounced auto-save). Adding or editing a field = edit `specs.ts` (plus a migration only if the column is genuinely new). Navigation lives in `src/components/Sidebar.tsx`. **Each entity also needs its own route file** at `src/app/(app)/<entity>/page.tsx` — see §Making app changes.
 
@@ -444,6 +444,32 @@ publishes these reports on a schedule; the website only displays them.**
 **Guardrails:** ≤200 words; audience is the counselor (not Luis); auto-published (no draft step, per Luis's
 choice); never invent activities or numbers; the report is a projection of real activity data — CoWork docs
 and the site DB remain the source of truth.
+
+## Populating Competitions & Summer Programs (CoWork)
+
+The **Competitions** (`/competitions`) and **Summer Programs** (`/summer_programs`) tabs are
+CoWork-populated from Luis's "Competitions & Programs Mapping" research. The tables start empty; insert
+rows via the Supabase MCP and set `user_id` explicitly (the MCP bypasses RLS). Use `source = 'cowork'`
+and a stable `source_ref` (e.g. `comp:obecon`, `program:yygs`) — a unique index on
+`(user_id, source, source_ref)` means re-using a `source_ref` keeps it one row. **Map only into existing
+columns; never invent data.**
+
+- **competitions:** `name` (required), `start_date`, `registration_deadline`, `phases` (freeform
+  schedule), `topic`, `difficulty`, `prestige`, `result`, `status`, `website_url`.
+- **summer_programs:** `name` (required), `host`, `focus`, `term`, `application_start`, `deadline`,
+  `status`, `difficulty`, `prestige`, `cost`, `financial_aid`, `eligibility`, `recommendation_reqs`,
+  `website_url`, `portal_url`, `logo_url`, `special_notes`.
+
+```sql
+-- first population = plain inserts; to revise later, UPDATE the row by its source_ref (don't re-insert)
+insert into public.competitions (user_id, source, source_ref, name, topic, start_date, prestige, status)
+select id, 'cowork', 'comp:<slug>', '<name>', '<topic>', <date-or-null>, '<prestige>', '<status>'
+from auth.users where email = 'luisqueiroz236@gmail.com';
+```
+`difficulty` ∈ Low / Medium / Medium-Hard / Hard · `prestige` ∈ Low / Mid / High / Super High ·
+competition `status` ∈ Researching / Registered / In progress / Completed / Not pursuing · program
+`status` ∈ Researching / Considering / Planning to apply / Applied / Accepted / Rejected / Waitlisted /
+Enrolled / Completed / Withdrawn. Removal uses the standard archive model (set `archived = true`).
 
 ## Backlog Cowork can pick up
 

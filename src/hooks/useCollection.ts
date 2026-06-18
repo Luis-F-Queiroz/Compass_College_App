@@ -70,5 +70,16 @@ export function useCollection(table: string) {
     [table, refresh, rows],
   );
 
-  return { rows, loading, create, update, remove, refresh, authed: !!session };
+  // Archived rows are hidden from the main list; the Show-archived panel loads them on demand.
+  const fetchArchived = useCallback(async (): Promise<Row[]> => {
+    if (!session) return [];
+    const { data } = await supabase()
+      .from(table)
+      .select("*")
+      .eq("archived", true)
+      .order("created_at", { ascending: false });
+    return (data as Row[]) || [];
+  }, [table, session]);
+
+  return { rows, loading, create, update, remove, refresh, fetchArchived, authed: !!session };
 }

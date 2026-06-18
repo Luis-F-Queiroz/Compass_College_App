@@ -8,6 +8,10 @@ export const IDEA_STATUS = ["New", "Keep", "Promoted", "Archived"];
 export const TESTING = ["Required", "Optional", "Test-blind", "Not used"];
 export const INTERVIEW = ["Required", "Optional", "Offered", "None"];
 export const DECISION = ["Pending", "Accepted", "Rejected", "Deferred", "Waitlisted"];
+export const DIFFICULTY = ["Low", "Medium", "Medium-Hard", "Hard"];
+export const PRESTIGE = ["Low", "Mid", "High", "Super High"];
+export const COMP_STATUS = ["Researching", "Registered", "In progress", "Completed", "Not pursuing"];
+export const PROGRAM_STATUS = ["Researching", "Considering", "Planning to apply", "Applied", "Accepted", "Rejected", "Waitlisted", "Enrolled", "Completed", "Withdrawn"];
 
 export type FieldType = "text" | "textarea" | "number" | "date" | "url" | "select" | "tags";
 export type Field = { k: string; label: string; type?: FieldType; options?: string[]; required?: boolean };
@@ -118,6 +122,57 @@ export const SPECS: Record<string, Spec> = {
       { k: "category", label: "Category" },
       { k: "status", label: "Status", type: "select", options: IDEA_STATUS },
       { k: "tags", label: "Tags (comma-separated)", type: "tags" },
+    ],
+  },
+  competitions: {
+    table: "competitions", title: "Competitions", singular: "competition",
+    columns: [
+      { k: "name", label: "Competition" },
+      { k: "topic", label: "Topic" },
+      { k: "start_date", label: "Start", type: "date" },
+      { k: "prestige", label: "Prestige", type: "chip" },
+      { k: "status", label: "Status", type: "chip" },
+    ],
+    fields: [
+      { k: "name", label: "Name", required: true },
+      { k: "topic", label: "Topic (Essay, Case, Investments…)" },
+      { k: "start_date", label: "Start date", type: "date" },
+      { k: "registration_deadline", label: "Registration deadline", type: "date" },
+      { k: "phases", label: "Phases / schedule", type: "textarea" },
+      { k: "difficulty", label: "Difficulty", type: "select", options: DIFFICULTY },
+      { k: "prestige", label: "Prestige", type: "select", options: PRESTIGE },
+      { k: "status", label: "Status", type: "select", options: COMP_STATUS },
+      { k: "result", label: "Result / outcome", type: "textarea" },
+      { k: "website_url", label: "Website URL", type: "url" },
+    ],
+  },
+  summer_programs: {
+    table: "summer_programs", title: "Summer Programs", singular: "program", logo: true,
+    columns: [
+      { k: "name", label: "Program" },
+      { k: "focus", label: "Focus" },
+      { k: "deadline", label: "Deadline", type: "date" },
+      { k: "status", label: "Status", type: "chip" },
+      { k: "prestige", label: "Prestige", type: "chip" },
+    ],
+    fields: [
+      { k: "name", label: "Program name", required: true },
+      { k: "host", label: "Host institution (e.g. UCLA, Wharton)" },
+      { k: "focus", label: "Focus / program area" },
+      { k: "term", label: "Term (e.g. Summer 2026)" },
+      { k: "status", label: "Status", type: "select", options: PROGRAM_STATUS },
+      { k: "application_start", label: "Application opens", type: "date" },
+      { k: "deadline", label: "Application deadline", type: "date" },
+      { k: "difficulty", label: "Difficulty", type: "select", options: DIFFICULTY },
+      { k: "prestige", label: "Prestige", type: "select", options: PRESTIGE },
+      { k: "cost", label: "Cost" },
+      { k: "financial_aid", label: "Financial aid / scholarships" },
+      { k: "eligibility", label: "Eligibility", type: "textarea" },
+      { k: "recommendation_reqs", label: "Recommendation requirements", type: "textarea" },
+      { k: "website_url", label: "Website URL", type: "url" },
+      { k: "portal_url", label: "Portal URL", type: "url" },
+      { k: "logo_url", label: "Logo URL (optional)", type: "url" },
+      { k: "special_notes", label: "Special notes", type: "textarea" },
     ],
   },
 };

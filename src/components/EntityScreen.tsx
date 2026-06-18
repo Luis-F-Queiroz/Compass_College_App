@@ -40,15 +40,28 @@ function fromForm(spec: Spec, form: Record<string, string>): Record<string, unkn
 
 export default function EntityScreen({ entity }: { entity: string }) {
   const spec = SPECS[entity];
-  const { rows, loading, create, update, remove } = useCollection(spec.table);
+  const { rows, loading, create, update, remove, refresh, fetchArchived } = useCollection(spec.table);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
+  const [archivedRows, setArchivedRows] = useState<Row[] | null>(null); // null = panel hidden
   const toast = useToast();
+
+  const toggleArchived = async () => {
+    if (archivedRows !== null) { setArchivedRows(null); return; }
+    setArchivedRows(await fetchArchived());
+  };
+  const doUnarchive = async (id: string) => {
+    await update(id, { archived: false });
+    toast("Unarchived");
+    await refresh();
+    setArchivedRows(await fetchArchived());
+  };
 
   return (
     <>
       <div className="topbar">
         <div><h1>{spec.title}</h1></div>
         <div className="toolbar">
+          <button className="btn" onClick={toggleArchived}>{archivedRows !== null ? "Hide archived" : "Show archived"}</button>
           <button className="btn primary" onClick={() => setEditing("new")}>+ Add {spec.singular}</button>
         </div>
       </div>
@@ -109,6 +122,39 @@ export default function EntityScreen({ entity }: { entity: string }) {
         </div>
       </div>
 
+      {archivedRows !== null && (
+        <div className="card">
+          <div className="card-h"><h3>Archived{archivedRows.length > 0 && <span className="chip dim" style={{ marginLeft: 8 }}>{archivedRows.length}</span>}</h3></div>
+          <div className="card-b" style={{ paddingTop: 10 }}>
+            {archivedRows.length === 0 ? (
+              <div className="muted" style={{ fontSize: 14 }}>No archived {spec.title.toLowerCase()}.</div>
+            ) : (
+              <div className="tbl-wrap">
+                <table className="tbl">
+                  <tbody>
+                    {archivedRows.map((r) => (
+                      <tr key={r.id}>
+                        <td>
+                          {spec.logo ? (
+                            <span style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                              <CollegeLogo name={String(r.name || "")} websiteUrl={r.website_url as string} logoUrl={r.logo_url as string} size={26} />
+                              <span className="strong">{String(r[spec.columns[0].k] ?? "—")}</span>
+                            </span>
+                          ) : (
+                            <span className="strong">{String(r[spec.columns[0].k] ?? "—")}</span>
+                          )}
+                        </td>
+                        <td className="t-actions"><button className="btn-sm" onClick={() => doUnarchive(r.id)}>Unarchive</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {editing && (
         <EntityForm
           spec={spec}
@@ -116,6 +162,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
           onClose={() => setEditing(null)}
           onCreate={async (v) => { await create(v); toast(`Added ${spec.singular}`); setEditing(null); }}
           onUpdate={update}
+          onArchive={async (id) => { await update(id, { archived: true }); toast("Archived"); setEditing(null); if (archivedRows !== null) setArchivedRows(await fetchArchived()); }}
           onDelete={async (id) => { await remove(id); toast("Deleted"); setEditing(null); }}
         />
       )}
@@ -124,7 +171,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
 }
 
 function EntityForm({
-  spec, record, onClose, onCreate, onUpdate, onDelete,
+  spec, record, onClose, onCreate, onUpdate, onDelete, onArchive,
 }: {
   spec: Spec;
   record: Row | null;
@@ -132,6 +179,7 @@ function EntityForm({
   onCreate: (v: Record<string, unknown>) => Promise<void>;
   onUpdate: (id: string, v: Record<string, unknown>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onArchive: (id: string) => Promise<void>;
 }) {
   const isEdit = !!record;
   const [form, setForm] = useState<Record<string, string>>(() => toForm(spec, record || {}));
@@ -189,6 +237,10 @@ function EntityForm({
     if (!record) return;
     try { await onDelete(record.id); } catch (e) { setConfirming(false); setErr("Delete failed — " + (e as Error).message); }
   };
+  const doArchive = async () => {
+    if (!record) return;
+    try { await onArchive(record.id); } catch (e) { setErr("Archive failed — " + (e as Error).message); }
+  };
 
   const footer = isEdit ? (
     <>
@@ -199,7 +251,10 @@ function EntityForm({
           <button className="btn-sm danger" onClick={doDelete}>Delete</button>
         </span>
       ) : (
-        <button className="btn danger" onClick={() => setConfirming(true)}>Delete</button>
+        <span className="inline-confirm">
+          <button className="btn danger" onClick={() => setConfirming(true)}>Delete</button>
+          <button className="btn" onClick={doArchive}>Archive</button>
+        </span>
       )}
       <span style={{ flex: 1 }} />
       <span className="muted" style={{ fontSize: 13, alignSelf: "center", color: saveState === "error" ? "var(--danger)" : undefined }}>
