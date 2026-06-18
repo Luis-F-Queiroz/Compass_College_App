@@ -11,7 +11,7 @@ import { DETAIL_SECTIONS, GRADES, TARGET, gradeChip, targetChip, yesNoChip } fro
 function fmtPct(v: any) {
   const n = Number(v);
   if (!Number.isFinite(n)) return String(v);
-  return (n <= 1 ? Math.round(n * 100) : n) + "%";
+  return n + "%";
 }
 
 export default function CollegeDetail() {
@@ -108,6 +108,11 @@ export default function CollegeDetail() {
                           {TARGET.map((t) => <option key={t} value={t}>{t}</option>)}
                         </select>
                         {c[f.k] && <span className={"chip " + targetChip(c[f.k])}>{c[f.k]}</span>}
+                      </div>
+                    ) : f.type === "percent" ? (
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <input id={"d-" + f.k} type="number" value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value === "" ? "" : Number(e.target.value))} style={{ maxWidth: 120 }} />
+                        <span className="muted">%</span>
                       </div>
                     ) : f.type === "number" ? (
                       <input id={"d-" + f.k} type="number" value={c[f.k] ?? ""} onChange={(e) => setField(f.k, e.target.value === "" ? "" : Number(e.target.value))} />

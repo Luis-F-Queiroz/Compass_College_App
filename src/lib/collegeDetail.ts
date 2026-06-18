@@ -4,7 +4,7 @@
 export const GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F"];
 export const TARGET = ["Target", "Semi-target", "Non-target"];
 
-export type DType = "text" | "long" | "number" | "grade" | "target";
+export type DType = "text" | "long" | "number" | "grade" | "target" | "percent";
 export type DField = { k: string; label: string; type: DType };
 
 export const DETAIL_SECTIONS: { title: string; fields: DField[] }[] = [
@@ -52,7 +52,7 @@ export const DETAIL_SECTIONS: { title: string; fields: DField[] }[] = [
     fields: [
       { k: "sat_range", label: "SAT range (mid 50%)", type: "text" },
       { k: "sat_median", label: "SAT median", type: "text" },
-      { k: "acceptance_rate", label: "Acceptance rate (%)", type: "number" },
+      { k: "acceptance_rate", label: "Acceptance rate", type: "percent" },
       { k: "overall_grade", label: "Overall grade", type: "grade" },
     ],
   },
