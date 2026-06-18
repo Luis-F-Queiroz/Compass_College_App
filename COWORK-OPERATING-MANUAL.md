@@ -398,6 +398,53 @@ The UI is schema-driven, so most changes are small and localized.
 
 ---
 
+## Counselor report workflow (CoWork-run)
+
+The **Reports for Counselor** tab (`/counselor`) shows a short (≤200-word) doc-style update for Luis's
+external college counselor, who reaches the site through the shared access code. **CoWork generates and
+publishes these reports on a schedule; the website only displays them.**
+
+**Where it lives**
+- Table `public.counselor_reports` (migration `0006`): `title`, `period_label`, `meeting_at`, `summary`
+  (the main "what I've been doing / since last meeting" body), `wins`, `whats_next`, `through_line`,
+  `published_at` (defaults to `now()` → **auto-published on insert**), plus `user_id` + RLS.
+- Page `src/app/(app)/counselor/page.tsx` renders the **latest** report (by `published_at`) as a doc with
+  the optional sections + a Print/Save-PDF button, and lists past reports as an archive.
+
+**Generation workflow (CoWork runs this)**
+1. Read the source material: Luis's `activities` on the site (Supabase MCP `select * from activities where
+   archived = false`) plus `WEEKLY-IMPACT-TRACKER.md` (recent wins) and `02-activity-spike-strategy.md` /
+   `MEMORY.md` (the spike through-line). **Never invent facts** — if nothing new happened, say so plainly.
+2. Write a **≤200-word** report whose audience is **the college counselor** (warm, concrete, no jargon),
+   mapped to the fields:
+   - `summary` — what Luis has been doing / progress since the last meeting (the core).
+   - `wins` — recent wins & impact, numbers when real (omit if none).
+   - `whats_next` — near-term plans / deadlines (omit if none).
+   - `through_line` — one line tying it to the finance-and-entrepreneurship spike.
+   - `period_label` — e.g. `"Since our last meeting · <date>"`; `meeting_at` — the meeting it preps for.
+3. **Publish** by inserting one row (auto-publish). Set `user_id` explicitly — the MCP bypasses RLS:
+   ```sql
+   insert into public.counselor_reports
+     (user_id, title, period_label, meeting_at, summary, wins, whats_next, through_line)
+   select id, 'Update for my counselor', '<period>', <meeting_at-or-null>,
+          '<summary>', '<wins-or-null>', '<whats_next-or-null>', '<through_line-or-null>'
+   from auth.users where email = 'luisqueiroz236@gmail.com';
+   ```
+   Each run inserts a NEW row (the history is the archive). To fix the latest without adding a row,
+   `update` the most recent row instead.
+4. Report back to Luis: the period covered and a one-line summary of what was published.
+
+**Schedule (CoWork sets up its own tasks)**
+- **Weekly:** a recurring task that runs the generation workflow once a week to keep the report current.
+- **Before each meeting:** whenever Luis says he has a counselor meeting at time *T*, schedule a one-off
+  task at **T − 3 hours** that re-runs the workflow (with `meeting_at = T`) so the report is freshest right
+  before they meet. Luis announces each meeting; CoWork creates that T−3h task. Use CoWork's scheduled-task /
+  cron tooling for both — the weekly job runs indefinitely, the pre-meeting job is one-off per meeting.
+
+**Guardrails:** ≤200 words; audience is the counselor (not Luis); auto-published (no draft step, per Luis's
+choice); never invent activities or numbers; the report is a projection of real activity data — CoWork docs
+and the site DB remain the source of truth.
+
 ## Backlog Cowork can pick up
 
 Ready-to-build items using the existing schema-driven pattern (spec + nav + route file, plus migration only if a new column/table is involved):
