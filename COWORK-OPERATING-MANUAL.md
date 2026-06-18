@@ -458,7 +458,9 @@ columns; never invent data.**
   schedule), `topic`, `difficulty`, `prestige`, `result`, `status`, `website_url`.
 - **summer_programs:** `name` (required), `host`, `focus`, `term`, `application_start`, `deadline`,
   `status`, `difficulty`, `prestige`, `cost`, `financial_aid`, `eligibility`, `recommendation_reqs`,
-  `website_url`, `portal_url`, `logo_url`, `special_notes`.
+  `website_url`, `portal_url`, `logo_url`, `special_notes`. **Set `website_url` to the host
+  institution's root domain so the program's logo loads** — same logo rule as colleges (`logo_url`
+  overrides with a direct image URL).
 
 ```sql
 -- first population = plain inserts; to revise later, UPDATE the row by its source_ref (don't re-insert)
