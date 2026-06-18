@@ -21,8 +21,8 @@ function domainOf(url?: string | null) {
 
 /**
  * Real college logo with a graceful monogram fallback.
- * Source priority: explicit logo_url → the real logo fetched by website domain
- * (logo.clearbit.com) → initials monogram when no real logo resolves.
+ * Source priority: explicit logo_url → the real logo fetched from the website domain
+ * (Google's favicon service) → initials monogram when no real logo resolves.
  */
 export default function CollegeLogo({
   name,
@@ -37,7 +37,7 @@ export default function CollegeLogo({
 }) {
   const [failed, setFailed] = useState(false);
   const domain = domainOf(websiteUrl);
-  const src = logoUrl || (domain ? `https://logo.clearbit.com/${domain}` : "");
+  const src = logoUrl || (domain ? `https://www.google.com/s2/favicons?sz=128&domain=${domain}` : "");
   const radius = size >= 40 ? 14 : 8;
   return (
     <span
@@ -53,7 +53,6 @@ export default function CollegeLogo({
           className="avimg"
           src={src}
           alt=""
-          loading="lazy"
           referrerPolicy="no-referrer"
           onError={() => setFailed(true)}
         />

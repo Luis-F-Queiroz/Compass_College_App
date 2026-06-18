@@ -480,6 +480,13 @@ website. CoWork maintains the 22 research fields directly in the `colleges` tabl
   `social_grade`, `value_grade`. The chips/boxes are built for letters; a number won't display.
 - `target_status` is freeform (Target / Semi-target / Non-target, optionally annotated).
 - `acceptance_rate` is a number, rendered as a percent. SAT fields (`sat_range`, `sat_median`) are text.
+- **Logos load from the web automatically — you MUST set `website_url`.** Every college (and every
+  summer program) needs `website_url` set to the institution's official **root** domain, e.g.
+  `https://harvard.edu`, `https://mit.edu`, `https://berkeley.edu` (use the university's root domain, not
+  a sub-page or business-school path). The logo is fetched live from that domain (Google's favicon
+  service, `https://www.google.com/s2/favicons?sz=128&domain=<domain>`); a row with no `website_url`
+  shows only a colored monogram. `logo_url` may override with a direct image URL if a favicon looks wrong.
+  Always include `website_url` when adding a college or program.
 - Many colleges are still empty (their Learn More shows "—"). Fill the research (location, majors,
   pros/cons, grades, etc.) the same way. Map only into existing columns; never invent data.
 
