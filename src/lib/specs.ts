@@ -23,6 +23,7 @@ export type Spec = {
   logo?: boolean;
   detail?: boolean; // shows a "Learn More" link → /<table>/<id> detail page
   readonly?: boolean; // view-only on the site (no add/edit/delete UI); maintained via CoWork/code
+  archivable?: boolean; // even when readonly, allow archiving rows (per-row Archive + Show archived)
   essays?: boolean; // an institution that has supplemental essays → shows an "Essays" button per row
   columns: Column[];
   fields: Field[];
@@ -149,7 +150,7 @@ export const SPECS: Record<string, Spec> = {
     ],
   },
   summer_programs: {
-    table: "summer_programs", title: "Summer Programs", singular: "program", logo: true, readonly: true, essays: true,
+    table: "summer_programs", title: "Summer Programs", singular: "program", logo: true, readonly: true, archivable: true, essays: true,
     columns: [
       { k: "name", label: "Program" },
       { k: "focus", label: "Focus" },

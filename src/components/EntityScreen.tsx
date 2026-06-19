@@ -57,6 +57,12 @@ export default function EntityScreen({ entity }: { entity: string }) {
     await refresh();
     setArchivedRows(await fetchArchived());
   };
+  // archive a row directly (read-only entities have no edit modal to archive from)
+  const doArchiveRow = async (id: string) => {
+    await update(id, { archived: true });
+    toast("Archived");
+    if (archivedRows !== null) setArchivedRows(await fetchArchived());
+  };
 
   return (
     <>
@@ -64,7 +70,10 @@ export default function EntityScreen({ entity }: { entity: string }) {
         <div><h1>{spec.title}</h1></div>
         <div className="toolbar">
           {spec.readonly ? (
-            <span className="muted" style={{ fontSize: 13 }}>Read-only · maintained in CoWork</span>
+            <>
+              {spec.archivable && <button className="btn" onClick={toggleArchived}>{archivedRows !== null ? "Hide archived" : "Show archived"}</button>}
+              <span className="muted" style={{ fontSize: 13 }}>Read-only · maintained in CoWork</span>
+            </>
           ) : (
             <>
               <button className="btn" onClick={toggleArchived}>{archivedRows !== null ? "Hide archived" : "Show archived"}</button>
@@ -120,6 +129,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
                           {spec.essays && <button className="btn-sm" onClick={() => setEssaysFor(r)} style={{ marginRight: 6 }}>Essays</button>}
                           {spec.detail && <Link className="btn-sm" href={`/${spec.table}/${r.id}`} style={{ marginRight: 6 }}>Learn More</Link>}
                           {!spec.readonly && <button className="btn-sm" onClick={() => setEditing(r)}>Edit</button>}
+                          {spec.archivable && <button className="btn-sm" onClick={() => doArchiveRow(r.id)}>Archive</button>}
                         </td>
                       </motion.tr>
                     ))}
