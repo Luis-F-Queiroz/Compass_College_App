@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 const NAV = [
   { href: "/dashboard", label: "Dashboard", ic: "◎" },
   { href: "/colleges", label: "Colleges", ic: "❖" },
-  { href: "/essays", label: "Essays", ic: "✎" },
+  { href: "/personal-statement", label: "Personal Statement", ic: "✎" },
   { href: "/tasks", label: "Tasks", ic: "✓" },
   { href: "/activities", label: "Activities", ic: "★" },
   { href: "/competitions", label: "Competitions", ic: "✪" },

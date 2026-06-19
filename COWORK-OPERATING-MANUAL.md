@@ -518,6 +518,13 @@ spec) — no add/edit/delete in the UI; maintained via CoWork/code. Each college
      a friendly "connect Google first" notice. Routes: `/api/google/auth`, `/api/google/callback`,
      `/api/create-doc`; server-side DB access via `src/lib/serverSupabase.ts` (signs in as the single user).
 
+**Personal statement (Common App) — NOT per college.** The **Personal Statement** tab
+(`/personal-statement`) is the single Common-App essay, the same for every college. Its drafts live in
+`essays` with `parent_type = 'personal'` (no `parent_id`); the brainstorm scratchpad is
+`app_config.ps_brainstorm`. **Never create a personal statement under a college or summer program** —
+institutions get *supplements* only (`parent_type='college'|'summer_program'`). Each personal-statement
+draft can have its own Google Doc via the same OAuth flow.
+
 ## Backlog Cowork can pick up
 
 Ready-to-build items using the existing schema-driven pattern (spec + nav + route file, plus migration only if a new column/table is involved):
