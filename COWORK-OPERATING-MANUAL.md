@@ -503,17 +503,20 @@ spec) — no add/edit/delete in the UI; maintained via CoWork/code. Each college
   *topic*, e.g. "Why this school?"), `prompt_text` (the **exact** prompt — fill the real one, never
   invent it), `word_limit`, `status` (ESSAY_STATUS), `deadline`, `is_reusable`, `google_doc_url`.
   CoWork can populate supplements + exact prompts directly (set `user_id`, `parent_type`, `parent_id`).
-- **Google Docs (auto-create).** The "Create Google Doc" button calls `POST /api/create-doc`
-  (`src/app/api/create-doc/route.ts`), which creates a Doc, shares it **anyone-with-link = editor**,
-  and saves the link; the button then **opens** the saved Doc. It needs a Google service account:
-  1. Google Cloud Console → new/existing project → **enable the Google Drive API**.
-  2. Create a **service account** → **Keys** → add key → JSON (downloads a key file).
-  3. In Vercel → project **compass-college-app** → Settings → **Environment Variables** (Production), add:
-     `GOOGLE_SERVICE_ACCOUNT_EMAIL` = the service-account email (`…@….iam.gserviceaccount.com`), and
-     `GOOGLE_SERVICE_ACCOUNT_KEY` = the JSON's `private_key` value (the whole `-----BEGIN PRIVATE KEY-----…` block).
-  4. Redeploy. Until then the button shows a friendly "not set up yet" notice (no crash).
-  Note: Docs are created in the **service account's** Drive and accessed via the saved link (not Luis's
-  personal Drive). The endpoint only creates blank Docs.
+- **Google Docs (auto-create, via OAuth).** The "Create Google Doc" button calls `POST /api/create-doc`,
+  which creates a Doc in **Luis's own Drive**, shares it **anyone-with-link = editor**, saves the link,
+  and opens it. (A service account can't be used here — a personal Gmail grants it no Drive storage, so
+  `files.create` fails with "quota exceeded". OAuth-as-Luis is the working path.) Setup:
+  1. Google Cloud Console (same project) → **APIs & Services → Credentials → Create OAuth client ID →
+     Web application**. Authorized redirect URI: `https://luiscollegeapp.vercel.app/api/google/callback`.
+  2. **OAuth consent screen**: External; scope `…/auth/drive.file`; add Luis as a **test user** (keeps it
+     in testing — no Google verification needed for personal use).
+  3. In Vercel (project `compass-college-app`, Production), add `GOOGLE_OAUTH_CLIENT_ID` and
+     `GOOGLE_OAUTH_CLIENT_SECRET` from that client; redeploy.
+  4. On the site: **Settings → Connect Google → Allow.** The refresh token is stored in `app_config`
+     (migration 0009, RLS); after that "Create Google Doc" is one click. Until connected, the button shows
+     a friendly "connect Google first" notice. Routes: `/api/google/auth`, `/api/google/callback`,
+     `/api/create-doc`; server-side DB access via `src/lib/serverSupabase.ts` (signs in as the single user).
 
 ## Backlog Cowork can pick up
 
