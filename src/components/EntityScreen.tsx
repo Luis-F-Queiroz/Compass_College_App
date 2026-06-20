@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
 import CollegeLogo from "@/components/CollegeLogo";
 import { useToast } from "@/components/Toast";
@@ -46,6 +46,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
   const [archivedRows, setArchivedRows] = useState<Row[] | null>(null); // null = panel hidden
   const [essaysFor, setEssaysFor] = useState<Row | null>(null); // institution whose supplements panel is open
   const toast = useToast();
+  const router = useRouter();
 
   const toggleArchived = async () => {
     if (archivedRows !== null) { setArchivedRows(null); return; }
@@ -105,7 +106,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
                 <tbody>
                   <AnimatePresence initial={false}>
                     {rows.map((r) => (
-                      <motion.tr key={r.id} className={spec.readonly ? "" : "clickable"} onClick={() => { if (!spec.readonly) setEditing(r); }}
+                      <motion.tr key={r.id} className={spec.detail || !spec.readonly ? "clickable" : ""} onClick={() => { if (spec.detail) router.push(`/${spec.table}/${r.id}`); else if (!spec.readonly) setEditing(r); }}
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.16 }}>
                         {spec.columns.map((c, i) => (
                           <td key={c.k}>
@@ -127,7 +128,6 @@ export default function EntityScreen({ entity }: { entity: string }) {
                         ))}
                         <td className="t-actions" onClick={(e) => e.stopPropagation()}>
                           {spec.essays && <button className="btn-sm" onClick={() => setEssaysFor(r)} style={{ marginRight: 6 }}>Essays</button>}
-                          {spec.detail && <Link className="btn-sm" href={`/${spec.table}/${r.id}`} style={{ marginRight: 6 }}>Learn More</Link>}
                           {spec.linkField && r[spec.linkField.key] ? (
                             <a className="btn-sm" href={String(r[spec.linkField.key])} target="_blank" rel="noopener noreferrer" style={{ marginRight: 6 }}>{spec.linkField.label}</a>
                           ) : null}
