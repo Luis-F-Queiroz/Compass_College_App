@@ -461,6 +461,12 @@ columns; never invent data.**
   `website_url`, `portal_url`, `logo_url`, `special_notes`. **Set `website_url` to the host
   institution's root domain so the program's logo loads** — same logo rule as colleges (`logo_url`
   overrides with a direct image URL).
+  - **`portal_url` = the program's official APPLICATION portal / apply page** — where an applicant
+    *applies to or logs in to track their application* for this specific program (the program's own
+    "Apply"/"Application" page or applicant login, often a Slate page like `apply.<host>.edu`). It is
+    **NOT** the general info/marketing page (that's `website_url`), a different program, or an unrelated
+    university page. It renders as a per-row **Portal** link on the Summer Programs page (opens in a new
+    tab). If you can't verify the real application URL, **leave it blank** — never guess.
 
 ```sql
 -- first population = plain inserts; to revise later, UPDATE the row by its source_ref (don't re-insert)

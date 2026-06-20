@@ -153,6 +153,7 @@ export const SPECS: Record<string, Spec> = {
   },
   summer_programs: {
     table: "summer_programs", title: "Summer Programs", singular: "program", logo: true, readonly: true, archivable: true, essays: true,
+    linkField: { key: "portal_url", label: "Portal" },
     columns: [
       { k: "name", label: "Program" },
       { k: "focus", label: "Focus" },
