@@ -24,6 +24,7 @@ export type Spec = {
   detail?: boolean; // shows a "Learn More" link → /<table>/<id> detail page
   readonly?: boolean; // view-only on the site (no add/edit/delete UI); maintained via CoWork/code
   archivable?: boolean; // even when readonly, allow archiving rows (per-row Archive + Show archived)
+  linkField?: { key: string; label: string }; // per-row external link button, shown only when row[key] is set
   essays?: boolean; // an institution that has supplemental essays → shows an "Essays" button per row
   columns: Column[];
   fields: Field[];
@@ -32,6 +33,7 @@ export type Spec = {
 export const SPECS: Record<string, Spec> = {
   colleges: {
     table: "colleges", title: "Colleges", singular: "college", logo: true, detail: true, readonly: true, essays: true,
+    linkField: { key: "applicant_portal_url", label: "Portal" },
     columns: [
       { k: "name", label: "College" },
       { k: "application_round", label: "Round", type: "chip" },

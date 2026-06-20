@@ -128,6 +128,9 @@ export default function EntityScreen({ entity }: { entity: string }) {
                         <td className="t-actions" onClick={(e) => e.stopPropagation()}>
                           {spec.essays && <button className="btn-sm" onClick={() => setEssaysFor(r)} style={{ marginRight: 6 }}>Essays</button>}
                           {spec.detail && <Link className="btn-sm" href={`/${spec.table}/${r.id}`} style={{ marginRight: 6 }}>Learn More</Link>}
+                          {spec.linkField && r[spec.linkField.key] ? (
+                            <a className="btn-sm" href={String(r[spec.linkField.key])} target="_blank" rel="noopener noreferrer" style={{ marginRight: 6 }}>{spec.linkField.label}</a>
+                          ) : null}
                           {!spec.readonly && <button className="btn-sm" onClick={() => setEditing(r)}>Edit</button>}
                           {spec.archivable && <button className="btn-sm" onClick={() => doArchiveRow(r.id)}>Archive</button>}
                         </td>

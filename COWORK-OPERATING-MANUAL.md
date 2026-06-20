@@ -489,6 +489,14 @@ website. CoWork maintains the 22 research fields directly in the `colleges` tabl
   service, `https://www.google.com/s2/favicons?sz=128&domain=<domain>`); a row with no `website_url`
   shows only a colored monogram. `logo_url` may override with a direct image URL if a favicon looks wrong.
   Always include `website_url` when adding a college or program.
+- **`applicant_portal_url` — the APPLICANT portal, NOT the regular school portal.** When adding a
+  college, set `applicant_portal_url` to the school's official **applicant status / check portal** —
+  the page where a prospective applicant logs in to *track their application / check their decision*
+  (often "Application Status Portal", "Applicant Portal", "Check Application Status"; frequently a
+  Slate page like `apply.<school>.edu` or `admissions.<school>.edu/status`). It is **NOT** the general
+  student/enrollment/registrar portal, the alumni portal, the Common App homepage, or a marketing
+  "apply now" page. It renders as a per-row **Portal** link on the Colleges page (shown only when set,
+  opens in a new tab). If you can't verify the real applicant-portal URL, **leave it blank** — never guess.
 - Many colleges are still empty (their Learn More shows "—"). Fill the research (location, majors,
   pros/cons, grades, etc.) the same way. Map only into existing columns; never invent data.
 
