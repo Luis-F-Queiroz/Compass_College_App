@@ -1,4 +1,4 @@
-import EntityScreen from "@/components/EntityScreen";
+import CompetitionsBoard from "@/components/CompetitionsBoard";
 export default function Page() {
-  return <EntityScreen entity="competitions" />;
+  return <CompetitionsBoard />;
 }
