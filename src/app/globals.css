@@ -24,12 +24,10 @@ a:hover{text-decoration:underline}
 
 /* ---- app shell ---- */
 .app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
-@media (max-width:760px){
-  .app{grid-template-columns:1fr}
-  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;padding:12px}
-  .nav{flex-direction:row;flex-wrap:wrap;flex:1 1 auto;gap:4px}
-  .main{padding:20px 16px 80px}
-}
+/* mobile-only chrome (drawer top bar + scrim + close) — hidden on desktop, shown in the mobile media query at the end of this file */
+.mtopbar{display:none}
+.side-scrim{display:none}
+.side-close{display:none}
 .side{background:var(--tile-dark);color:var(--on-dark-muted);display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100vh}
 .brand{display:flex;align-items:center;gap:11px;padding:6px 10px 22px}
 .brand .name{display:block;color:#fff;font-size:21px;font-weight:600;line-height:1.1}
@@ -220,6 +218,38 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .ccard-phases{font-size:12px;color:var(--ink-48);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .ccard-foot{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
 @media (max-width:720px){.cboard{flex-direction:column;overflow-x:visible}.ccol{flex:1 1 auto;min-width:0;width:100%}}
+/* ===== Mobile / small-screen optimization (must follow base rules to override) ===== */
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  /* fixed top bar with hamburger */
+  .mtopbar{display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:45;background:var(--tile-dark);color:#fff;padding:calc(9px + env(safe-area-inset-top,0px)) 14px 9px}
+  .mtopbar-brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:600;color:#fff;letter-spacing:-0.3px}
+  .mtopbar-burger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:42px;height:42px;border:none;background:transparent;cursor:pointer;padding:9px;border-radius:8px;-webkit-tap-highlight-color:transparent}
+  .mtopbar-burger span{display:block;height:2px;width:22px;background:#fff;border-radius:2px}
+  .mtopbar-burger:active{background:rgba(255,255,255,.1)}
+  /* sidebar becomes a slide-in drawer */
+  .side{position:fixed;top:0;left:0;height:100dvh;width:min(84vw,300px);z-index:60;transform:translateX(-100%);transition:transform .26s cubic-bezier(.22,.61,.36,1);box-shadow:0 0 44px rgba(0,0,0,.34);overflow-y:auto;padding-top:calc(22px + env(safe-area-inset-top,0px))}
+  .side.open{transform:translateX(0)}
+  .side-scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:55;opacity:0;pointer-events:none;transition:opacity .26s ease}
+  .side-scrim.show{opacity:1;pointer-events:auto}
+  .side-close{display:inline-flex;position:absolute;top:16px;right:12px;border:none;background:rgba(255,255,255,.08);color:#fff;width:36px;height:36px;border-radius:8px;align-items:center;justify-content:center;cursor:pointer;font-size:15px}
+  .side-close:active{background:rgba(255,255,255,.16)}
+  /* content + headings */
+  .main{padding:18px 16px calc(90px + env(safe-area-inset-bottom,0px))}
+  .topbar{margin-bottom:18px}
+  .topbar h1{font-size:23px}
+  /* prevent iOS focus-zoom + comfortable tap targets */
+  input,select,textarea{font-size:16px}
+  .btn{padding:10px 16px}
+  .btn-sm{padding:8px 12px;font-size:13px}
+  /* modals use more of the screen */
+  .scrim{padding:14px 10px;align-items:flex-start}
+  .modal-b{max-height:74vh}
+  .modal-f{flex-wrap:wrap}
+  /* tighter tables (still horizontally scrollable via .tbl-wrap) */
+  .tbl th,.tbl td{padding:10px 10px}
+  .kv{grid-template-columns:1fr}
+}
 /* print: isolate the report card */
 @media print{
   .no-print{display:none !important}

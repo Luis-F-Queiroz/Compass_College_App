@@ -412,9 +412,23 @@ publishes these reports on a schedule; the website only displays them.**
   the optional sections + a Print/Save-PDF button, and lists past reports as an archive.
 
 **Generation workflow (CoWork runs this)**
-1. Read the source material: Luis's `activities` on the site (Supabase MCP `select * from activities where
-   archived = false`) plus `WEEKLY-IMPACT-TRACKER.md` (recent wins) and `02-activity-spike-strategy.md` /
-   `MEMORY.md` (the spike through-line). **Never invent facts** — if nothing new happened, say so plainly.
+1. Gather the source material with the **Enterprise Search plugin** (`enterprise-search`), run as an internal
+   `digest`/synthesis over the window since the last report (default 7 days; or since the last
+   `counselor_reports.published_at`, or the announced meeting). Scan these connected sources **in parallel**,
+   filtered to the finance-and-entrepreneurship spike and to **new** activity in the window:
+   - **`~~email` → Gmail** — competition results, program decisions, mentor/teacher messages. Distill into
+     achievements only; never paste raw email content into the report.
+   - **`~~cloud storage` → Google Drive** — the "Competitions & Programs Mapping" sheet, Dicionário FEN docs,
+     essay/brainstorm files.
+   - **activity tracker → Compass DB** (Supabase MCP) — `activities` (`select * from activities where
+     archived = false`), plus recent `result`/`status` changes in `competitions` and `summer_programs`.
+   - **workspace docs** — `planning/WEEKLY-IMPACT-TRACKER.md` (recent wins) and `planning/02-activity-spike-strategy.md` /
+     `MEMORY.md` (the spike through-line).
+   Then **synthesize** (knowledge-synthesis): dedupe the same win across sources — e.g., a result that shows up
+   in both a Gmail message and the `competitions` table is one item — attribute internally, and weight by
+   recency. **Never invent facts** — if nothing new happened, say so plainly. (Google Calendar is connected but
+   excluded from the default scan per Luis's choice — add it only if asked. Sources that aren't connected —
+   Slack, Notion, Jira, etc. — are not used.)
 2. Write a **≤200-word** report whose audience is **the college counselor** (warm, concrete, no jargon),
    mapped to the fields:
    - `summary` — what Luis has been doing / progress since the last meeting (the core).
