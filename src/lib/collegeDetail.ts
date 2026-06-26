@@ -52,6 +52,7 @@ export const DETAIL_SECTIONS: { title: string; fields: DField[] }[] = [
     fields: [
       { k: "sat_range", label: "SAT range (mid 50%)", type: "text" },
       { k: "sat_median", label: "SAT median", type: "text" },
+      { k: "language_test_req", label: "Language test (TOEFL / Duolingo / IELTS)", type: "text" },
       { k: "acceptance_rate", label: "Acceptance rate", type: "percent" },
       { k: "overall_grade", label: "Overall grade", type: "grade" },
     ],

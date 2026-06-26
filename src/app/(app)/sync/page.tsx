@@ -13,10 +13,7 @@ const NAME_FIELD: Record<SyncEntity, string> = {
   colleges: "name", essays: "title", tasks: "title", activities: "name",
   ideas: "text", scholarship_deadlines: "label", profiles: "full_name",
 };
-const PROOF_ENTITIES: SyncEntity[] = ["activities", "essays", "colleges", "ideas"];
-const PROOF_TYPES = ["Consistency", "Progression", "Ownership", "Impact"] as const;
-
-type Run = { id: string; mode: string; status: string; applied_at: string; summary: any };
+type Run ={ id: string; mode: string; status: string; applied_at: string; summary: any };
 type ReviewRow = { entity: SyncEntity; row: any; conflicts: ConflictRecord[] };
 
 const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -41,7 +38,6 @@ export default function SyncDashboard() {
   const userId = session?.user.id ?? "";
   const [runs, setRuns] = useState<Run[]>([]);
   const [review, setReview] = useState<ReviewRow[]>([]);
-  const [coverage, setCoverage] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -69,15 +65,8 @@ export default function SyncDashboard() {
       }
     }
 
-    const cov: Record<string, number> = { Consistency: 0, Progression: 0, Ownership: 0, Impact: 0 };
-    for (const entity of PROOF_ENTITIES) {
-      const { data } = await sb.from(entity).select("proof_types").eq("archived", false);
-      for (const row of (data as any[]) ?? []) for (const p of (row.proof_types ?? []) as string[]) if (p in cov) cov[p]++;
-    }
-
     setRuns(allRuns);
     setReview(reviewRows);
-    setCoverage(cov);
     setLoading(false);
   }, [session]);
 
@@ -159,22 +148,6 @@ export default function SyncDashboard() {
               })}
             </AnimatePresence>
           )}
-        </div>
-      </div>
-
-      {/* proof-type coverage (Narrative-Blueprint audit) */}
-      <div className="card">
-        <div className="card-h"><h3>Proof-Type coverage</h3></div>
-        <div className="card-b" style={{ paddingTop: 12 }}>
-          <p className="muted" style={{ fontSize: 13, marginTop: 0 }}>Across your active activities, essays, colleges and ideas — the four kinds of evidence admissions trusts.</p>
-          <div className="coverage">
-            {PROOF_TYPES.map((p) => (
-              <div key={p} className="coverage-cell">
-                <div className="coverage-n">{coverage[p] ?? 0}</div>
-                <div className="coverage-l">{p}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 

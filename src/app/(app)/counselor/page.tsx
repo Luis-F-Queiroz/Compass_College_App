@@ -67,6 +67,11 @@ export default function CounselorReports() {
       ) : (
         <div className="card printable report-doc">
           <div className="card-b" style={{ padding: "30px 34px" }}>
+            {/* shown only in the printed / saved-PDF report, never on screen */}
+            <div className="report-id print-only">
+              <span className="report-id-name">Luis Queiroz</span>
+              <span className="report-id-meta">Class of 2028 · luisqueiroz236@gmail.com</span>
+            </div>
             <div className="report-head">
               <h2 className="report-title">{current.title || "Update for my counselor"}</h2>
               <span className="muted report-period">{current.period_label || fmt(current.published_at)}</span>

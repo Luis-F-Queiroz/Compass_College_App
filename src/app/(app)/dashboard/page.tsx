@@ -86,7 +86,7 @@ export default function Dashboard() {
   (d?.essays || []).forEach((e) => { if (e.deadline) items.push({ date: e.deadline, label: e.title, type: "Essay", days: daysUntil(e.deadline) }); });
   (d?.tasks || []).forEach((t) => { if (t.due_date && t.status !== "Done") items.push({ date: t.due_date, label: t.title, type: "Task", days: daysUntil(t.due_date) }); });
   const upcoming = items.filter((i) => i.days != null && i.days >= 0).sort((a, b) => a.days! - b.days!);
-  const next14 = upcoming.filter((i) => (i.days as number) <= 14);
+  const next90 = upcoming.filter((i) => (i.days as number) <= 90);
   const daysToNext = upcoming.length ? upcoming[0].days : null;
   const recentIdeas = (d?.ideas || []).slice(0, 5);
 
@@ -113,13 +113,13 @@ export default function Dashboard() {
       </motion.div>
       <motion.div className="dash-cols" variants={stagger} initial="hidden" animate="show">
         <motion.div className="card" variants={item} style={{ marginTop: 0 }}>
-          <div className="card-h"><h3>Upcoming deadlines</h3><span className="muted" style={{ fontSize: 13 }}>Next 14 days</span></div>
+          <div className="card-h"><h3>Upcoming deadlines</h3><span className="muted" style={{ fontSize: 13 }}>Next 90 days</span></div>
           <div className="card-b">
-            {next14.length ? next14.map((i, idx) => (
+            {next90.length ? next90.map((i, idx) => (
               <div className="listrow" key={idx}>
                 <div className="grow"><div className="ttl">{i.label}</div><div className="meta">{i.type} · {fmtWhen(i.days)} · {fmtDate(i.date)}</div></div>
               </div>
-            )) : <div className="empty">No deadlines in the next 14 days.</div>}
+            )) : <div className="empty">No deadlines in the next 90 days.</div>}
           </div>
         </motion.div>
         <motion.div className="card" variants={item} style={{ marginTop: 0 }}>

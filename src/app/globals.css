@@ -180,6 +180,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .callout{margin-top:20px;background:var(--blue-tint);border-left:3px solid var(--blue);border-radius:var(--r-sm);padding:12px 16px;font-size:14px;line-height:1.5;color:var(--ink)}
 .callout-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--blue);margin-bottom:4px;font-weight:600}
 .report-foot{font-size:12px;margin-top:22px;padding-top:12px;border-top:1px solid var(--divider)}
+/* print-only student identity header (counselor report download) */
+.print-only{display:none}
+.report-id{margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--ink)}
+.report-id-name{display:block;font-size:18px;font-weight:600;letter-spacing:-0.3px;color:var(--ink)}
+.report-id-meta{display:block;font-size:13px;color:var(--ink-48);margin-top:2px}
 .tbl tr.active-row{background:var(--blue-tint)}
 /* read-only research display (college Learn More) */
 .ro-text{white-space:pre-wrap;font-size:15px;line-height:1.55;color:var(--ink-80)}
@@ -199,6 +204,22 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 /* personal statement */
 .ps-brainstorm{width:100%;min-height:150px;border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 16px;font-size:15px;line-height:1.55;background:var(--pearl);color:var(--ink);font-family:inherit;resize:vertical}
 .ps-brainstorm:focus-visible{outline:2px solid var(--blue-focus);outline-offset:2px}
+/* brainstorm studio (multi-session) */
+.bs-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.bs-tab{font-size:13px;padding:6px 13px;border-radius:var(--r-pill);border:1px solid var(--hairline);background:#fff;color:var(--ink-80);cursor:pointer;letter-spacing:-0.12px}
+.bs-tab:hover{background:var(--pearl)}
+.bs-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bs-tab.add{color:var(--blue);border-style:dashed}
+.bs-panel{display:flex;flex-direction:column;gap:12px}
+.bs-row{display:flex;align-items:center;gap:10px}
+.bs-name{flex:1;font-size:15px;font-weight:600;border:1px solid transparent;background:transparent;padding:5px 7px;border-radius:var(--r-sm)}
+.bs-name:hover{border-color:var(--hairline)}
+.bs-name:focus{border-color:var(--blue-focus);background:#fff}
+.bs-methods{display:flex;flex-wrap:wrap;gap:6px}
+.bs-method{cursor:pointer;border:1px solid var(--hairline);background:var(--parchment)}
+.bs-method.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.bs-hint{font-size:13.5px;line-height:1.5;color:var(--ink-80);background:var(--blue-tint);border-left:3px solid var(--blue);border-radius:var(--r-sm);padding:10px 14px}
+.bs-launch{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--divider)}
 .btn.commonapp{display:inline-flex;align-items:center;gap:8px}
 /* Competitions status board */
 .cboard{display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;align-items:flex-start;max-width:100%}
@@ -218,6 +239,30 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .ccard-phases{font-size:12px;color:var(--ink-48);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .ccard-foot{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
 @media (max-width:720px){.cboard{flex-direction:column;overflow-x:visible}.ccol{flex:1 1 auto;min-width:0;width:100%}}
+/* College Board page (SAT sittings + superscore + AP) */
+.cb-head{display:flex;align-items:center;gap:12px}
+.cb-logo{height:26px;width:auto;display:block;max-width:62%}
+.cb-super{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px;background:var(--blue-tint);border:1px solid #cfe0fb;border-radius:var(--r-md);padding:16px 20px;margin:8px 0 16px}
+.cb-super-main{display:flex;flex-direction:column}
+.cb-super-n{font-size:40px;font-weight:600;letter-spacing:-1px;line-height:1;color:var(--blue)}
+.cb-super-l{font-size:13px;color:var(--ink-48);margin-top:3px}
+.cb-super-break{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--ink-80)}
+.cb-seg{font-size:18px;font-weight:600;color:var(--ink)}
+.cb-plus{font-size:18px;color:var(--ink-48)}
+.cb-rows{display:flex;flex-direction:column;gap:2px}
+.cb-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--divider);flex-wrap:wrap}
+.cb-row:last-child{border-bottom:none}
+.cb-row-main{flex:1;min-width:130px}
+.cb-score{display:inline-flex;flex-direction:column;align-items:center;min-width:52px;font-size:16px;font-weight:600;color:var(--ink);line-height:1.1}
+.cb-score small{font-size:10px;font-weight:500;color:var(--ink-48);letter-spacing:0.2px;margin-top:2px}
+.cb-score.total{color:var(--blue)}
+.cb-score.best{color:var(--ok)}
+.cb-score.best small{color:var(--ok)}
+.cb-row-act{display:flex;gap:6px}
+.cb-note{font-size:12.5px;margin-top:10px}
+.prof-super{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px;padding:14px 16px;background:var(--pearl);border:1px solid var(--hairline);border-radius:var(--r-md)}
+.prof-super-n{font-size:26px;font-weight:600;letter-spacing:-0.5px;color:var(--blue)}
+.prof-super-l{font-size:13px;color:var(--ink-48)}
 /* ===== Mobile / small-screen optimization (must follow base rules to override) ===== */
 @media (max-width:860px){
   .app{grid-template-columns:1fr}
@@ -253,7 +298,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 /* print: isolate the report card */
 @media print{
   .no-print{display:none !important}
+  .print-only{display:block !important}
   .side{display:none !important}
+  .mtopbar{display:none !important}
   .app{display:block !important}
   .main{padding:0 !important;max-width:none !important}
   .printable{box-shadow:none !important;border:none !important}

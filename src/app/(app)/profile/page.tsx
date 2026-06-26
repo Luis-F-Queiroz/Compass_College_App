@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
+import { superscore } from "@/lib/collegeBoard";
 
 type PField = { k: string; label: string; type?: "text" | "number" | "date" };
 const FIELDS: PField[] = [
@@ -20,9 +22,6 @@ const FIELDS: PField[] = [
   { k: "high_school", label: "High school" },
   { k: "graduation_year", label: "Graduation year", type: "number" },
   { k: "gpa", label: "GPA" },
-  { k: "sat_total", label: "SAT total", type: "number" },
-  { k: "sat_ebrw", label: "SAT EBRW", type: "number" },
-  { k: "sat_math", label: "SAT Math", type: "number" },
   { k: "act", label: "ACT", type: "number" },
   { k: "toefl", label: "TOEFL", type: "number" },
   { k: "parent1_name", label: "Parent / guardian 1" },
@@ -32,19 +31,25 @@ const FIELDS: PField[] = [
 export default function Profile() {
   const { session } = useAuth();
   const [form, setForm] = useState<Record<string, string>>({});
+  const [satSuper, setSatSuper] = useState<number | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "saved">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!session) return;
     (async () => {
-      const res = await supabase().from("profiles").select("*").eq("user_id", session.user.id).maybeSingle();
+      const sb = supabase();
+      const [res, sit] = await Promise.all([
+        sb.from("profiles").select("*").eq("user_id", session.user.id).maybeSingle(),
+        sb.from("sat_sittings").select("rw,math"),
+      ]);
       const d = res.data as Record<string, unknown> | null;
       if (d) {
         const f: Record<string, string> = {};
         for (const fl of FIELDS) f[fl.k] = d[fl.k] == null ? "" : String(d[fl.k]);
         setForm(f);
       }
+      setSatSuper(superscore((sit.data as { rw: number | null; math: number | null }[]) ?? []).total);
     })();
   }, [session]);
 
@@ -95,6 +100,10 @@ export default function Profile() {
                 />
               </div>
             ))}
+          </div>
+          <div className="prof-super">
+            <div><span className="prof-super-n">{satSuper ?? "—"}</span> <span className="prof-super-l">SAT superscore</span></div>
+            <Link className="btn-sm" href="/college-board">Manage SAT &amp; AP scores →</Link>
           </div>
           <div className="brandrow">
             <a className="brandbtn" href="https://account.collegeboard.org/login/" target="_blank" rel="noopener">College Board</a>

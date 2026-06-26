@@ -8,6 +8,7 @@ const NAV = [
   { href: "/dashboard", label: "Dashboard", ic: "◎" },
   { href: "/colleges", label: "Colleges", ic: "❖" },
   { href: "/personal-statement", label: "Personal Statement", ic: "✎" },
+  { href: "/college-board", label: "College Board", ic: "◫" },
   { href: "/tasks", label: "Tasks", ic: "✓" },
   { href: "/activities", label: "Activities", ic: "★" },
   { href: "/competitions", label: "Competitions", ic: "✪" },
@@ -66,7 +67,7 @@ export default function Sidebar() {
         >
           <span /><span /><span />
         </button>
-        <span className="mtopbar-brand"><Mark size={22} /> Compass</span>
+        <span className="mtopbar-brand"><Mark size={22} /> Luis Queiroz</span>
       </header>
 
       {/* Scrim behind the drawer (mobile only) */}
@@ -76,8 +77,8 @@ export default function Sidebar() {
         <div className="brand">
           <span aria-hidden style={{ lineHeight: 0 }}><Mark size={26} /></span>
           <div>
-            <span className="name">Compass</span>
-            <span className="sub">College application hub</span>
+            <span className="name">Luis Queiroz</span>
+            <span className="sub">Compass</span>
           </div>
         </div>
         <button className="side-close" aria-label="Close menu" onClick={() => setOpen(false)}>✕</button>

@@ -32,7 +32,7 @@ export type Spec = {
 
 export const SPECS: Record<string, Spec> = {
   colleges: {
-    table: "colleges", title: "Colleges", singular: "college", logo: true, detail: true, readonly: true, essays: true,
+    table: "colleges", title: "Colleges", singular: "college", logo: true, detail: true, readonly: true, archivable: true, essays: true,
     linkField: { key: "applicant_portal_url", label: "Portal" },
     columns: [
       { k: "name", label: "College" },

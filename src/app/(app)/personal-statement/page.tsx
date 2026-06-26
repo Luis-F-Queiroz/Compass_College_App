@@ -1,11 +1,12 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Modal from "@/components/Modal";
 import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/Toast";
 import { ESSAY_STATUS } from "@/lib/specs";
+import BrainstormStudio from "@/components/BrainstormStudio";
 
 type Draft = {
   id: string;
@@ -20,38 +21,19 @@ export default function PersonalStatement() {
   const { session } = useAuth();
   const toast = useToast();
   const [drafts, setDrafts] = useState<Draft[]>([]);
-  const [brainstorm, setBrainstorm] = useState("");
-  const [bsState, setBsState] = useState<"idle" | "saving" | "saved">("idle");
   const [editing, setEditing] = useState<Draft | "new" | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const bsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async () => {
     if (!session) return;
-    const [d, cfg] = await Promise.all([
-      supabase().from("essays").select("id,title,status,word_limit,google_doc_url,brainstorm_notes").eq("parent_type", "personal").order("created_at", { ascending: true }),
-      supabase().from("app_config").select("ps_brainstorm").eq("user_id", session.user.id).maybeSingle(),
-    ]);
-    setDrafts((d.data as Draft[]) ?? []);
-    setBrainstorm((cfg.data as any)?.ps_brainstorm ?? "");
+    const { data } = await supabase().from("essays").select("id,title,status,word_limit,google_doc_url,brainstorm_notes").eq("parent_type", "personal").order("created_at", { ascending: true });
+    setDrafts((data as Draft[]) ?? []);
     setLoading(false);
   }, [session]);
   useEffect(() => {
     load();
   }, [load]);
-
-  const saveBrainstorm = (v: string) => {
-    setBrainstorm(v);
-    setBsState("saving");
-    if (bsTimer.current) clearTimeout(bsTimer.current);
-    bsTimer.current = setTimeout(async () => {
-      if (!session) return;
-      await supabase().from("app_config").upsert({ user_id: session.user.id, ps_brainstorm: v }, { onConflict: "user_id" });
-      setBsState("saved");
-      setTimeout(() => setBsState("idle"), 1500);
-    }, 600);
-  };
 
   const doDoc = async (d: Draft) => {
     if (d.google_doc_url) {
@@ -102,20 +84,7 @@ export default function PersonalStatement() {
         </div>
       </div>
 
-      <div className="card">
-        <div className="card-h">
-          <h3>Brainstorm</h3>
-          <span className="muted" style={{ fontSize: 13 }}>{bsState === "saving" ? "Saving…" : bsState === "saved" ? "Saved ✓" : ""}</span>
-        </div>
-        <div className="card-b">
-          <textarea
-            className="ps-brainstorm"
-            value={brainstorm}
-            onChange={(e) => saveBrainstorm(e.target.value)}
-            placeholder="Dump everything here — proudest moments, a small specific story only you could tell, your through-line, what you'd want a stranger to understand about you. No structure needed yet; this is just for you."
-          />
-        </div>
-      </div>
+      <BrainstormStudio />
 
       <div className="card">
         <div className="card-h"><h3>Drafts</h3></div>
