@@ -79,7 +79,9 @@ CoWork is the primary workspace and source of truth; this website is a downstrea
 | Supabase | project ref `bubhsrgwaxolthihlqdd`, URL `https://bubhsrgwaxolthihlqdd.supabase.co` |
 | Schema baseline | `supabase/migrations/0001_init.sql` |
 
-**Data model.** Entity tables: `colleges`, `scholarship_deadlines`, `essays`, `essay_colleges`, `tasks`, `activities`, `ideas`, `profiles`, `competitions`, `summer_programs`, `counselor_reports`. Plus the sync ledger `sync_runs` / `sync_changes`. Every row has `user_id` and RLS (`auth.uid() = user_id`). Most entity tables carry `archived boolean` (0005/0007) — lists hide `archived = true` rows; an **Archive** button (next to Delete in the edit modal) sets it, and a **Show archived** toggle on each list unarchives. On **read-only** lists (Summer Programs), archiving is a **per-row Archive button** + a **Show archived** toggle instead — the record fields stay read-only. Archiving never deletes.
+**Data model.** Entity tables: `colleges`, `scholarship_deadlines`, `essays`, `essay_colleges`, `tasks`, `activities`, `ideas`, `profiles`, `competitions`, `summer_programs`, `counselor_reports`. Plus the sync ledger `sync_runs` / `sync_changes`. Every row has `user_id` and RLS (`auth.uid() = user_id`). Most entity tables carry `archived boolean` (0005/0007) — lists hide `archived = true` rows; an **Archive** button (next to Delete in the edit modal) sets it, and a **Show archived** toggle on each list unarchives. On **read-only** lists (Summer Programs, Colleges), archiving is a **per-row Archive button** + a **Show archived** toggle instead — the record fields stay read-only. Archiving never deletes.
+
+**User-entered tables (NOT CoWork-managed):** `sat_sittings` + `ap_scores` (the College Board page — SAT sittings, auto-superscored, and AP scores) and `brainstorm_sessions` (Personal Statement brainstorming). The student enters these on the site; CoWork does not populate or sync them. The Profile no longer has SAT entry fields — it shows only the SAT superscore (read from `sat_sittings`).
 
 **Schema-driven UI.** The UI is generated from `src/lib/specs.ts` (one field-spec per entity) rendered by the generic `src/components/EntityScreen.tsx` (table + animated modal + debounced auto-save). Adding or editing a field = edit `specs.ts` (plus a migration only if the column is genuinely new). Navigation lives in `src/components/Sidebar.tsx`. **Each entity also needs its own route file** at `src/app/(app)/<entity>/page.tsx` — see §Making app changes.
 
@@ -502,6 +504,9 @@ website. CoWork maintains the 22 research fields directly in the `colleges` tabl
   `social_grade`, `value_grade`. The chips/boxes are built for letters; a number won't display.
 - `target_status` is freeform (Target / Semi-target / Non-target, optionally annotated).
 - `acceptance_rate` is a number, rendered as a percent. SAT fields (`sat_range`, `sat_median`) are text.
+- **`language_test_req`** (0012) — the school's language-test requirement for international applicants
+  (e.g. "TOEFL 100+ / Duolingo 120 / IELTS 7.0", or "TOEFL waived if instruction in English"). Text,
+  shown in the Admissions section of the read-only Learn More page. Fill it per college.
 - **Logos load from the web automatically — you MUST set `website_url`.** Every college (and every
   summer program) needs `website_url` set to the institution's official **root** domain, e.g.
   `https://harvard.edu`, `https://mit.edu`, `https://berkeley.edu` (use the university's root domain, not
