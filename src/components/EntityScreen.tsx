@@ -100,7 +100,7 @@ export default function EntityScreen({ entity, toolbarExtra }: { entity: string;
             </div>
           ) : (
             <div className="tbl-wrap">
-              <table className="tbl">
+              <table className="tbl tbl-cards">
                 <thead>
                   <tr>{spec.columns.map((c) => <th key={c.k}>{c.label}</th>)}<th /></tr>
                 </thead>
@@ -113,7 +113,7 @@ export default function EntityScreen({ entity, toolbarExtra }: { entity: string;
                         onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && (spec.detail || !spec.readonly)) { e.preventDefault(); if (spec.detail) router.push(`/${spec.table}/${r.id}`); else setEditing(r); } }}
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.16 }}>
                         {spec.columns.map((c, i) => (
-                          <td key={c.k}>
+                          <td key={c.k} data-label={c.label}>
                             {i === 0 && spec.logo ? (
                               <span style={{ display: "flex", alignItems: "center", gap: 11 }}>
                                 <CollegeLogo name={String(r.name || "")} websiteUrl={r.website_url as string} logoUrl={r.logo_url as string} size={30} />

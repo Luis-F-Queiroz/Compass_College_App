@@ -92,6 +92,11 @@ export default function Sidebar() {
           </div>
         </div>
         <button className="side-close" aria-label="Close menu" onClick={() => setOpen(false)}>✕</button>
+        <button className="side-search" onClick={() => window.dispatchEvent(new Event("compass:search"))}>
+          <span className="ic" aria-hidden>⌕</span>
+          <span>Search</span>
+          <span className="side-search-k" aria-hidden>⌘K</span>
+        </button>
         <nav className="nav" aria-label="Primary">
           {NAV.map((n) => {
             const active = path === n.href || path.startsWith(n.href + "/");
