@@ -1,7 +1,8 @@
-// College Board page shared bits: official sourced logos + the SAT superscore formula.
-// Logos are the official wordmarks from Wikimedia Commons (exact fonts), not hand-drawn.
-export const SAT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/5/5a/SAT_logo_%282017%29.svg";
-export const AP_LOGO = "https://upload.wikimedia.org/wikipedia/commons/7/7b/Advanced_Placement_logo_-_College_Board.svg";
+// College Board page shared bits: official logos (user-provided, served from /public/logos) + superscore.
+export const SAT_LOGO = "/logos/sat-logo.png";
+export const AP_LOGO = "/logos/ap-logo.png";
+export const CB_WORDMARK = "/logos/collegeboard-logo.png";
+export const CB_ICON = "/logos/collegeboard-icon.png";
 
 export type Sitting = { id: string; label: string | null; test_date: string | null; rw: number | null; math: number | null };
 

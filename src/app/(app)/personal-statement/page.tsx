@@ -77,8 +77,10 @@ export default function PersonalStatement() {
         </div>
         <div className="toolbar">
           <a className="btn commonapp" href="https://www.commonapp.org" target="_blank" rel="noopener noreferrer">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="https://www.google.com/s2/favicons?sz=64&domain=commonapp.org" alt="" width="18" height="18" style={{ borderRadius: 4 }} />
+            <span className="ca-badge">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logos/commonapp-icon.png" alt="" />
+            </span>
             Common App
           </a>
         </div>

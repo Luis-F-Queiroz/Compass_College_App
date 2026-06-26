@@ -263,6 +263,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .prof-super{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px;padding:14px 16px;background:var(--pearl);border:1px solid var(--hairline);border-radius:var(--r-md)}
 .prof-super-n{font-size:26px;font-weight:600;letter-spacing:-0.5px;color:var(--blue)}
 .prof-super-l{font-size:13px;color:var(--ink-48)}
+/* College Board brand assets (user-provided logos) */
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.cb-brand{height:30px;width:auto;max-width:100%;display:block;margin-bottom:5px}
+.cb-footer{display:flex;align-items:center;gap:12px}
+.cb-footer-mark{height:30px;width:auto;max-width:100%;display:block;flex:none}
+/* Common App white icon on a navy badge (Personal Statement button) */
+.ca-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;background:#1d3a6b;flex:none}
+.ca-badge img{width:14px;height:14px;display:block}
 /* ===== Mobile / small-screen optimization (must follow base rules to override) ===== */
 @media (max-width:860px){
   .app{grid-template-columns:1fr}

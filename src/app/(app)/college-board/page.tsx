@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/Toast";
 import Modal from "@/components/Modal";
-import { SAT_LOGO, AP_LOGO, superscore, type Sitting } from "@/lib/collegeBoard";
+import { SAT_LOGO, AP_LOGO, CB_WORDMARK, CB_ICON, superscore, type Sitting } from "@/lib/collegeBoard";
 
 type AP = { id: string; course: string | null; score: number | null; exam_year: number | null };
 
@@ -59,11 +59,13 @@ export default function CollegeBoard() {
     <>
       <div className="topbar">
         <div>
-          <h1>College Board</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="cb-brand" src={CB_WORDMARK} alt="College Board" />
+          <h1 className="visually-hidden">College Board</h1>
           <p className="crumb">Your SAT sittings (auto-superscored) and AP scores.</p>
         </div>
         <div className="toolbar">
-          <a className="btn" href="https://account.collegeboard.org/login/" target="_blank" rel="noopener noreferrer">Open College Board ↗</a>
+          <a className="btn" href="https://account.collegeboard.org/login/" target="_blank" rel="noopener noreferrer">Send Your Scores</a>
         </div>
       </div>
 
@@ -149,6 +151,14 @@ export default function CollegeBoard() {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="card cb-footer-card">
+        <div className="card-b cb-footer">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="cb-footer-mark" src={CB_ICON} alt="" />
+          <span className="muted">Tracked in Compass — official scores live at College Board.</span>
         </div>
       </div>
 
