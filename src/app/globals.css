@@ -87,7 +87,7 @@ a:hover{text-decoration:underline}
 .ca-count.over{color:var(--danger);font-weight:600}
 .ca-meta{font-size:12px;margin-top:6px}
 /* Supplement progress (dashboard) */
-.supp-prog-row{display:grid;grid-template-columns:1fr 120px auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline)}
+.supp-prog-row{display:grid;grid-template-columns:1fr 120px auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--hairline)}
 .supp-prog-row:last-child{border-bottom:none}
 .supp-prog-name{font-size:14px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .supp-prog-bar{height:7px;border-radius:4px;background:var(--parchment);overflow:hidden}
@@ -211,7 +211,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .btn:disabled,.btn-sm:disabled{opacity:.5;cursor:not-allowed}
 /* responsive table + dashboard columns */
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.tbl-search{padding:7px 12px;border:1px solid var(--hairline);border-radius:var(--r-sm);font-size:14px;background:#fff;color:var(--ink);min-width:200px;max-width:100%}
+.tbl-search:focus{outline:none;border-color:var(--blue)}
+@media (max-width:620px){.tbl-search{min-width:0;flex:1}}
 .dash-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px;align-items:start}
+.dash-cols > .card:only-child{grid-column:1 / -1}
 @media (max-width:860px){.dash-cols{grid-template-columns:1fr}}
 .inline-confirm{display:flex;align-items:center;gap:8px}
 /* sync dashboard */

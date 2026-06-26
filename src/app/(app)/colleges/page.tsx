@@ -1,4 +1,4 @@
 import EntityScreen from "@/components/EntityScreen";
 export default function Page() {
-  return <EntityScreen entity="colleges" />;
+  return <EntityScreen entity="colleges" searchable />;
 }

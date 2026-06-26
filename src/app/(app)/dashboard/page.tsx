@@ -43,10 +43,10 @@ export default function Dashboard() {
     (async () => {
       const sb = supabase();
       const [c, e, t, i] = await Promise.all([
-        sb.from("colleges").select("*"),
-        sb.from("essays").select("*"),
-        sb.from("tasks").select("*"),
-        sb.from("ideas").select("*").order("captured_at", { ascending: false }),
+        sb.from("colleges").select("*").eq("archived", false),
+        sb.from("essays").select("*").eq("archived", false),
+        sb.from("tasks").select("*").eq("archived", false),
+        sb.from("ideas").select("*").eq("archived", false).order("captured_at", { ascending: false }),
       ]);
       setData({ colleges: c.data || [], essays: e.data || [], tasks: t.data || [], ideas: i.data || [] });
     })();
@@ -141,23 +141,24 @@ export default function Dashboard() {
           </motion.div>
         ))}
       </motion.div>
+      <motion.div className="card" variants={item} initial="hidden" animate="show" style={{ marginTop: 0 }}>
+        <div className="card-h">
+          <h3>Upcoming deadlines</h3>
+          <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {upcoming.length > 0 && <button className="btn-sm" onClick={exportICS} title="Download all upcoming deadlines as a calendar file">Export .ics</button>}
+            <span className="muted" style={{ fontSize: 13 }}>Next 90 days</span>
+          </span>
+        </div>
+        <div className="card-b">
+          {next90.length ? next90.map((i, idx) => (
+            <div className="listrow" key={idx}>
+              <div className="grow"><div className="ttl">{i.label}</div><div className="meta">{i.type} · {fmtWhen(i.days)} · {fmtDate(i.date)}</div></div>
+            </div>
+          )) : <div className="empty">No deadlines in the next 90 days.</div>}
+        </div>
+      </motion.div>
+
       <motion.div className="dash-cols" variants={stagger} initial="hidden" animate="show">
-        <motion.div className="card" variants={item} style={{ marginTop: 0 }}>
-          <div className="card-h">
-            <h3>Upcoming deadlines</h3>
-            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              {upcoming.length > 0 && <button className="btn-sm" onClick={exportICS} title="Download all upcoming deadlines as a calendar file">Export .ics</button>}
-              <span className="muted" style={{ fontSize: 13 }}>Next 90 days</span>
-            </span>
-          </div>
-          <div className="card-b">
-            {next90.length ? next90.map((i, idx) => (
-              <div className="listrow" key={idx}>
-                <div className="grow"><div className="ttl">{i.label}</div><div className="meta">{i.type} · {fmtWhen(i.days)} · {fmtDate(i.date)}</div></div>
-              </div>
-            )) : <div className="empty">No deadlines in the next 90 days.</div>}
-          </div>
-        </motion.div>
         <motion.div className="card" variants={item} style={{ marginTop: 0 }}>
           <div className="card-h"><h3>Recent ideas</h3></div>
           <div className="card-b">
@@ -166,22 +167,21 @@ export default function Dashboard() {
             )) : <div className="empty">No ideas yet.</div>}
           </div>
         </motion.div>
+        {suppProgress.length > 0 && (
+          <motion.div className="card" variants={item} style={{ marginTop: 0 }}>
+            <div className="card-h"><h3>Supplement progress</h3><span className="muted" style={{ fontSize: 13 }}>Final / total per school</span></div>
+            <div className="card-b">
+              {suppProgress.map((s) => (
+                <div className="supp-prog-row" key={s.id}>
+                  <span className="supp-prog-name">{s.name}</span>
+                  <span className="supp-prog-bar"><span className="supp-prog-fill" style={{ width: `${Math.round((s.final / s.total) * 100)}%` }} /></span>
+                  <span className="supp-prog-count muted">{s.final}/{s.total} final</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </motion.div>
-
-      {suppProgress.length > 0 && (
-        <motion.div className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24, ease: "easeOut" }}>
-          <div className="card-h"><h3>Supplement progress</h3><span className="muted" style={{ fontSize: 13 }}>Final / total per school</span></div>
-          <div className="card-b">
-            {suppProgress.map((s) => (
-              <div className="supp-prog-row" key={s.id}>
-                <span className="supp-prog-name">{s.name}</span>
-                <span className="supp-prog-bar"><span className="supp-prog-fill" style={{ width: `${Math.round((s.final / s.total) * 100)}%` }} /></span>
-                <span className="supp-prog-count muted">{s.final}/{s.total} final</span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
     </>
   );
 }

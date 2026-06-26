@@ -39,12 +39,13 @@ function fromForm(spec: Spec, form: Record<string, string>): Record<string, unkn
   return out;
 }
 
-export default function EntityScreen({ entity, toolbarExtra }: { entity: string; toolbarExtra?: ReactNode }) {
+export default function EntityScreen({ entity, toolbarExtra, searchable }: { entity: string; toolbarExtra?: ReactNode; searchable?: boolean }) {
   const spec = SPECS[entity];
   const { rows, loading, create, update, remove, refresh, fetchArchived } = useCollection(spec.table);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
   const [archivedRows, setArchivedRows] = useState<Row[] | null>(null); // null = panel hidden
   const [essaysFor, setEssaysFor] = useState<Row | null>(null); // institution whose supplements panel is open
+  const [query, setQuery] = useState(""); // colleges-style search over active rows (when searchable)
   const toast = useToast();
   const router = useRouter();
 
@@ -65,12 +66,26 @@ export default function EntityScreen({ entity, toolbarExtra }: { entity: string;
     if (archivedRows !== null) setArchivedRows(await fetchArchived());
   };
 
+  // When searchable, filter the active rows by the first (name/title) column.
+  const q = query.trim().toLowerCase();
+  const shown = searchable && q ? rows.filter((r) => String(r[spec.columns[0].k] ?? "").toLowerCase().includes(q)) : rows;
+
   return (
     <>
       <div className="topbar">
         <div><h1>{spec.title}</h1></div>
         <div className="toolbar">
           {toolbarExtra}
+          {searchable && (
+            <input
+              className="tbl-search"
+              type="search"
+              placeholder={`Search ${spec.title.toLowerCase()}`}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label={`Search ${spec.title}`}
+            />
+          )}
           {spec.readonly ? (
             <>
               {spec.archivable && <button className="btn" onClick={toggleArchived}>{archivedRows !== null ? "Hide archived" : "Show archived"}</button>}
@@ -98,6 +113,11 @@ export default function EntityScreen({ entity, toolbarExtra }: { entity: string;
               <div className="big">No {spec.title.toLowerCase()} yet</div>
               {spec.readonly ? "Added via CoWork." : `Add your first ${spec.singular}.`}
             </div>
+          ) : shown.length === 0 ? (
+            <div className="empty">
+              <div className="big">No matches</div>
+              Nothing matches &ldquo;{query}&rdquo;.
+            </div>
           ) : (
             <div className="tbl-wrap">
               <table className="tbl tbl-cards">
@@ -106,7 +126,7 @@ export default function EntityScreen({ entity, toolbarExtra }: { entity: string;
                 </thead>
                 <tbody>
                   <AnimatePresence initial={false}>
-                    {rows.map((r) => (
+                    {shown.map((r) => (
                       <motion.tr key={r.id} className={spec.detail || !spec.readonly ? "clickable" : ""}
                         tabIndex={spec.detail || !spec.readonly ? 0 : undefined}
                         onClick={() => { if (spec.detail) router.push(`/${spec.table}/${r.id}`); else if (!spec.readonly) setEditing(r); }}
