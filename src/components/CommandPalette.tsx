@@ -41,7 +41,7 @@ export default function CommandPalette() {
     const sb = supabase();
     const results = await Promise.all(
       SOURCES.map((s) =>
-        sb.from(s.table).select("*").eq("archived", false).then((r) => ({ s, rows: (r.data as any[]) ?? [] })),
+        sb.from(s.table).select("*").eq("archived", false).then((r: any) => ({ s, rows: (r.data as any[]) ?? [] })),
       ),
     );
     const items: Item[] = [];
