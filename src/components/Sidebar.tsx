@@ -13,6 +13,7 @@ const NAV = [
   { href: "/activities", label: "Activities", ic: "★" },
   { href: "/competitions", label: "Competitions", ic: "✪" },
   { href: "/summer_programs", label: "Summer Programs", ic: "❂" },
+  { href: "/scholarships", label: "Scholarships", ic: "◈" },
   { href: "/ideas", label: "Ideas", ic: "✦" },
   { href: "/profile", label: "Profile", ic: "◉" },
   { href: "/counselor", label: "Counselor", ic: "✉" },

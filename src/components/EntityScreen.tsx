@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
@@ -39,7 +39,7 @@ function fromForm(spec: Spec, form: Record<string, string>): Record<string, unkn
   return out;
 }
 
-export default function EntityScreen({ entity }: { entity: string }) {
+export default function EntityScreen({ entity, toolbarExtra }: { entity: string; toolbarExtra?: ReactNode }) {
   const spec = SPECS[entity];
   const { rows, loading, create, update, remove, refresh, fetchArchived } = useCollection(spec.table);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -70,6 +70,7 @@ export default function EntityScreen({ entity }: { entity: string }) {
       <div className="topbar">
         <div><h1>{spec.title}</h1></div>
         <div className="toolbar">
+          {toolbarExtra}
           {spec.readonly ? (
             <>
               {spec.archivable && <button className="btn" onClick={toggleArchived}>{archivedRows !== null ? "Hide archived" : "Show archived"}</button>}

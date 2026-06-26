@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
+import { buildICS, downloadICS } from "@/lib/ics";
 
 type AnyRow = Record<string, any>;
 const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -92,6 +93,25 @@ export default function Dashboard() {
   const daysToNext = upcoming.length ? upcoming[0].days : null;
   const recentIdeas = (d?.ideas || []).slice(0, 5);
 
+  // Per-college supplement progress: supplements link to a college via parent_type/parent_id.
+  const suppProgress = (d?.colleges || [])
+    .map((c) => {
+      const es = (d?.essays || []).filter((e) => e.parent_type === "college" && e.parent_id === c.id && !e.archived);
+      const final = es.filter((e) => e.status === "Final").length;
+      return { id: c.id as string, name: String(c.name), total: es.length, final };
+    })
+    .filter((x) => x.total > 0)
+    .sort((a, b) => a.final / a.total - b.final / b.total || b.total - a.total);
+
+  const exportICS = () => {
+    // Stable UID per deadline (date+type+label) so re-exporting updates events instead of duplicating them.
+    const events = upcoming.map((i) => {
+      const slug = `${i.date}-${i.type}-${i.label}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 48);
+      return { uid: `compass-${slug}@compass`, title: i.label, date: i.date, desc: i.type };
+    });
+    downloadICS("compass-deadlines.ics", buildICS(events));
+  };
+
   const kpis: { v: number | string; l: string; alert?: boolean; href?: string }[] = [
     { v: daysToNext == null ? "None" : daysToNext, l: "Days to next deadline" },
     { v: today.length, l: "Tasks due today", href: "/tasks" },
@@ -123,7 +143,13 @@ export default function Dashboard() {
       </motion.div>
       <motion.div className="dash-cols" variants={stagger} initial="hidden" animate="show">
         <motion.div className="card" variants={item} style={{ marginTop: 0 }}>
-          <div className="card-h"><h3>Upcoming deadlines</h3><span className="muted" style={{ fontSize: 13 }}>Next 90 days</span></div>
+          <div className="card-h">
+            <h3>Upcoming deadlines</h3>
+            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {upcoming.length > 0 && <button className="btn-sm" onClick={exportICS} title="Download all upcoming deadlines as a calendar file">Export .ics</button>}
+              <span className="muted" style={{ fontSize: 13 }}>Next 90 days</span>
+            </span>
+          </div>
           <div className="card-b">
             {next90.length ? next90.map((i, idx) => (
               <div className="listrow" key={idx}>
@@ -141,6 +167,21 @@ export default function Dashboard() {
           </div>
         </motion.div>
       </motion.div>
+
+      {suppProgress.length > 0 && (
+        <motion.div className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24, ease: "easeOut" }}>
+          <div className="card-h"><h3>Supplement progress</h3><span className="muted" style={{ fontSize: 13 }}>Final / total per school</span></div>
+          <div className="card-b">
+            {suppProgress.map((s) => (
+              <div className="supp-prog-row" key={s.id}>
+                <span className="supp-prog-name">{s.name}</span>
+                <span className="supp-prog-bar"><span className="supp-prog-fill" style={{ width: `${Math.round((s.final / s.total) * 100)}%` }} /></span>
+                <span className="supp-prog-count muted">{s.final}/{s.total} final</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </>
   );
 }

@@ -74,6 +74,26 @@ a:hover{text-decoration:underline}
 .kpi-link:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .kpi .v{font-size:34px;font-weight:600;letter-spacing:-0.374px;line-height:1.05}
 .kpi .l{margin-top:6px;font-size:13px;color:var(--ink-48);letter-spacing:-0.12px}
+/* Common App activities export */
+.ca-list{display:flex;flex-direction:column;gap:12px}
+.ca-slot{border:1px solid var(--hairline);border-radius:var(--r-sm,10px);padding:12px 14px}
+.ca-slot.ca-over{border-color:var(--warn);background:#fbf3e2}
+.ca-slot-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ca-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--parchment);color:var(--ink-80);font-size:12px;font-weight:600;flex:none}
+.ca-field{display:grid;grid-template-columns:140px 1fr auto;gap:10px;align-items:baseline;padding:3px 0;font-size:13px}
+.ca-label{color:var(--ink-48)}
+.ca-value{color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.ca-count{color:var(--ink-48);font-variant-numeric:tabular-nums;font-size:12px}
+.ca-count.over{color:var(--danger);font-weight:600}
+.ca-meta{font-size:12px;margin-top:6px}
+/* Supplement progress (dashboard) */
+.supp-prog-row{display:grid;grid-template-columns:1fr 120px auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline)}
+.supp-prog-row:last-child{border-bottom:none}
+.supp-prog-name{font-size:14px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.supp-prog-bar{height:7px;border-radius:4px;background:var(--parchment);overflow:hidden}
+.supp-prog-fill{display:block;height:100%;background:var(--ok,#2e7d32);border-radius:4px}
+.supp-prog-count{font-size:12px;white-space:nowrap}
+@media (max-width:620px){.ca-field{grid-template-columns:1fr auto}.ca-label{grid-column:1 / -1}.supp-prog-row{grid-template-columns:1fr auto}.supp-prog-bar{display:none}}
 .chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;letter-spacing:-0.12px;border-radius:var(--r-pill);padding:3px 10px;background:var(--parchment);color:var(--ink-80)}
 .chip.blue{background:#eaf2fd;color:#0058b0}
 .chip.ok{background:var(--ok-soft);color:var(--ok)}
