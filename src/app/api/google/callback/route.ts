@@ -1,14 +1,23 @@
+import { NextResponse } from "next/server";
 import { serverUserClient } from "@/lib/serverSupabase";
 
-// Google redirects here after consent with ?code=. Exchange it for a refresh token and store it, then
-// send the user back to Settings.
+// Google redirects here after consent with ?code= (&state=). Verify the state against the cookie set
+// by /api/google/auth (CSRF guard), exchange the code for a refresh token and store it, then send the
+// user back to Settings.
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const back = (s: string) => Response.redirect(`${url.origin}/settings?google=${s}`, 302);
+  const state = url.searchParams.get("state");
+  const cookieState = req.headers.get("cookie")?.match(/(?:^|;\s*)g_oauth_state=([^;]+)/)?.[1];
+  const back = (s: string) => {
+    const r = NextResponse.redirect(`${url.origin}/settings?google=${s}`, 302);
+    r.cookies.set("g_oauth_state", "", { path: "/", maxAge: 0 }); // clear the one-time state
+    return r;
+  };
   if (!code) return back("error");
+  if (!state || !cookieState || state !== cookieState) return back("error");
 
   const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;

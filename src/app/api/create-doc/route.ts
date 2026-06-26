@@ -42,6 +42,7 @@ export async function POST(req: Request) {
 
   try {
     const { client, userId } = await serverUserClient();
+    if (!userId) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
     const { data: cfg } = await client
       .from("app_config")
       .select("google_refresh_token")
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: `https://docs.google.com/document/d/${cj.id}/edit` });
   } catch (e) {
+    console.error("create-doc failed:", (e as Error).message);
     return NextResponse.json({ error: "Google Docs error: " + (e as Error).message }, { status: 500 });
   }
 }

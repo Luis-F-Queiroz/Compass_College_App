@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", ic: "◎" },
@@ -33,11 +33,19 @@ function Mark({ size = 26 }: { size?: number }) {
 export default function Sidebar() {
   const path = usePathname() || "";
   const [open, setOpen] = useState(false);
+  const burgerRef = useRef<HTMLButtonElement>(null);
+  const opened = useRef(false);
 
   // Close the mobile drawer whenever the route changes.
   useEffect(() => {
     setOpen(false);
   }, [path]);
+
+  // Return focus to the hamburger when the drawer closes (after having been opened).
+  useEffect(() => {
+    if (open) opened.current = true;
+    else if (opened.current) burgerRef.current?.focus();
+  }, [open]);
 
   // While the drawer is open: lock body scroll and close on Escape.
   useEffect(() => {
@@ -59,6 +67,7 @@ export default function Sidebar() {
       {/* Mobile top bar (hidden on desktop) */}
       <header className="mtopbar">
         <button
+          ref={burgerRef}
           className="mtopbar-burger"
           aria-label="Open menu"
           aria-expanded={open}

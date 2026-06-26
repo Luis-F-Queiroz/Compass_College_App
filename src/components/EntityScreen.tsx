@@ -106,7 +106,10 @@ export default function EntityScreen({ entity }: { entity: string }) {
                 <tbody>
                   <AnimatePresence initial={false}>
                     {rows.map((r) => (
-                      <motion.tr key={r.id} className={spec.detail || !spec.readonly ? "clickable" : ""} onClick={() => { if (spec.detail) router.push(`/${spec.table}/${r.id}`); else if (!spec.readonly) setEditing(r); }}
+                      <motion.tr key={r.id} className={spec.detail || !spec.readonly ? "clickable" : ""}
+                        tabIndex={spec.detail || !spec.readonly ? 0 : undefined}
+                        onClick={() => { if (spec.detail) router.push(`/${spec.table}/${r.id}`); else if (!spec.readonly) setEditing(r); }}
+                        onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && (spec.detail || !spec.readonly)) { e.preventDefault(); if (spec.detail) router.push(`/${spec.table}/${r.id}`); else setEditing(r); } }}
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.16 }}>
                         {spec.columns.map((c, i) => (
                           <td key={c.k}>
@@ -258,11 +261,12 @@ function EntityForm({
     }
   };
 
-  const req = spec.fields.find((f) => f.required);
   const submitNew = async () => {
-    if (req && !(form[req.k] || "").trim()) { setErr(req.label + " is required."); return; }
+    const missing = spec.fields.filter((f) => f.required && !(form[f.k] || "").trim());
+    if (missing.length) { setErr(missing.map((f) => f.label).join(", ") + (missing.length > 1 ? " are required." : " is required.")); return; }
     try { await onCreate(fromForm(spec, form)); } catch (e) { setErr("Could not save — " + (e as Error).message); }
   };
+  const recordName = record ? String(record[spec.columns[0].k] ?? record.name ?? spec.singular) : spec.singular;
   const doDelete = async () => {
     if (!record) return;
     try { await onDelete(record.id); } catch (e) { setConfirming(false); setErr("Delete failed — " + (e as Error).message); }
@@ -276,7 +280,7 @@ function EntityForm({
     <>
       {confirming ? (
         <span className="inline-confirm">
-          <span className="muted" style={{ fontSize: 13 }}>Delete — can&apos;t be undone.</span>
+          <span className="muted" style={{ fontSize: 13 }}>Delete &ldquo;{recordName}&rdquo;?</span>
           <button className="btn-sm" onClick={() => setConfirming(false)}>Cancel</button>
           <button className="btn-sm danger" onClick={doDelete}>Delete</button>
         </span>
@@ -308,9 +312,9 @@ function EntityForm({
             <div className={"field" + (full ? " full" : "")} key={fl.k}>
               <label htmlFor={"f-" + fl.k}>{fl.label}{fl.required && <span style={{ color: "var(--danger)" }}> *</span>}</label>
               {fl.type === "textarea" ? (
-                <textarea id={"f-" + fl.k} value={form[fl.k] || ""} onChange={(e) => set(fl.k, e.target.value)} />
+                <textarea id={"f-" + fl.k} required={fl.required} value={form[fl.k] || ""} onChange={(e) => set(fl.k, e.target.value)} />
               ) : fl.type === "select" ? (
-                <select id={"f-" + fl.k} value={form[fl.k] || ""} onChange={(e) => set(fl.k, e.target.value)}>
+                <select id={"f-" + fl.k} required={fl.required} value={form[fl.k] || ""} onChange={(e) => set(fl.k, e.target.value)}>
                   <option value="" />
                   {fl.options!.map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>

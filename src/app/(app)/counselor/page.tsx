@@ -29,14 +29,23 @@ export default function CounselorReports() {
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // print-only identity header; defaults to the known values, overridden by the profile if present
+  const [student, setStudent] = useState({ name: "Luis Queiroz", email: "luisqueiroz236@gmail.com", grade: "Class of 2028" });
 
   const load = useCallback(async () => {
     if (!session) return;
-    const { data } = await supabase()
-      .from("counselor_reports")
-      .select("*")
-      .order("published_at", { ascending: false });
-    setReports((data as Report[]) ?? []);
+    const sb = supabase();
+    const [rep, prof] = await Promise.all([
+      sb.from("counselor_reports").select("*").order("published_at", { ascending: false }),
+      sb.from("profiles").select("full_name,preferred_name,email,graduation_year").eq("user_id", session.user.id).maybeSingle(),
+    ]);
+    setReports((rep.data as Report[]) ?? []);
+    const p = prof.data as { full_name?: string; preferred_name?: string; email?: string; graduation_year?: number } | null;
+    if (p) setStudent({
+      name: p.full_name || p.preferred_name || "Luis Queiroz",
+      email: p.email || "luisqueiroz236@gmail.com",
+      grade: p.graduation_year ? `Class of ${p.graduation_year}` : "Class of 2028",
+    });
     setLoading(false);
   }, [session]);
 
@@ -69,8 +78,8 @@ export default function CounselorReports() {
           <div className="card-b" style={{ padding: "30px 34px" }}>
             {/* shown only in the printed / saved-PDF report, never on screen */}
             <div className="report-id print-only">
-              <span className="report-id-name">Luis Queiroz</span>
-              <span className="report-id-meta">Class of 2028 · luisqueiroz236@gmail.com</span>
+              <span className="report-id-name">{student.name}</span>
+              <span className="report-id-meta">{student.grade} · {student.email}</span>
             </div>
             <div className="report-head">
               <h2 className="report-title">{current.title || "Update for my counselor"}</h2>

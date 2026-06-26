@@ -96,7 +96,7 @@ export default function BrainstormStudio() {
     <div className="card">
       <div className="card-h">
         <h3>Brainstorm</h3>
-        <span className="muted" style={{ fontSize: 13 }}>{saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved ✓" : ""}</span>
+        <span className="muted" aria-live="polite" style={{ fontSize: 13 }}>{saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved ✓" : ""}</span>
       </div>
       <div className="card-b">
         <div className="bs-tabs">
@@ -113,13 +113,13 @@ export default function BrainstormStudio() {
         ) : (
           <div className="bs-panel">
             <div className="bs-row">
-              <input className="bs-name" value={active.name ?? ""} onChange={(e) => patch(active.id, { name: e.target.value })} placeholder="Session name" />
+              <input className="bs-name" aria-label="Session name" value={active.name ?? ""} onChange={(e) => patch(active.id, { name: e.target.value })} placeholder="Session name" />
               <button className="btn-sm danger" onClick={() => del(active.id)}>Delete</button>
             </div>
 
             <div className="bs-methods">
               {METHODS.map((m) => (
-                <button key={m.id} className={"chip bs-method" + (active.method === m.id ? " on" : "")} onClick={() => patch(active.id, { method: active.method === m.id ? null : m.id })}>{m.name}</button>
+                <button key={m.id} className={"chip bs-method" + (active.method === m.id ? " on" : "")} aria-pressed={active.method === m.id} onClick={() => patch(active.id, { method: active.method === m.id ? null : m.id })}>{m.name}</button>
               ))}
             </div>
             {method && <div className="bs-hint">{method.hint}</div>}
