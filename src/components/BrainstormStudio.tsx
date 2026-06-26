@@ -51,16 +51,38 @@ export default function BrainstormStudio() {
     const { data } = await supabase().from("brainstorm_sessions").insert({ user_id: session.user.id, name, content: "" }).select("id,name,method,content").single();
     if (data) { setSessions((p) => [...p, data as Session]); setActiveId((data as Session).id); }
   };
+  // Coalesce rapid edits to the SAME session (merge fields) so a later field change
+  // doesn't cancel an earlier one's save; flush on unmount / before unload.
+  const pendingRef = useRef<{ id: string; fields: Partial<Session> } | null>(null);
+  const flush = useCallback(async () => {
+    const p = pendingRef.current;
+    if (!p) return;
+    pendingRef.current = null;
+    await supabase().from("brainstorm_sessions").update({ ...p.fields, updated_at: new Date().toISOString() }).eq("id", p.id);
+    setSaveState("saved");
+    setTimeout(() => setSaveState((s) => (s === "saved" ? "idle" : s)), 1400);
+  }, []);
   const patch = (id: string, fields: Partial<Session>) => {
     setSessions((p) => p.map((s) => (s.id === id ? { ...s, ...fields } : s)));
+    const pend = pendingRef.current;
+    if (pend && pend.id !== id) {
+      // a different session had pending edits — flush them now so they aren't dropped
+      supabase().from("brainstorm_sessions").update({ ...pend.fields, updated_at: new Date().toISOString() }).eq("id", pend.id);
+    }
+    pendingRef.current = { id, fields: pend && pend.id === id ? { ...pend.fields, ...fields } : fields };
     setSaveState("saving");
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      await supabase().from("brainstorm_sessions").update({ ...fields, updated_at: new Date().toISOString() }).eq("id", id);
-      setSaveState("saved");
-      setTimeout(() => setSaveState("idle"), 1400);
-    }, 600);
+    timer.current = setTimeout(flush, 600);
   };
+  useEffect(() => {
+    const onBU = (e: BeforeUnloadEvent) => { if (pendingRef.current) { e.preventDefault(); e.returnValue = ""; } };
+    window.addEventListener("beforeunload", onBU);
+    return () => {
+      window.removeEventListener("beforeunload", onBU);
+      if (timer.current) clearTimeout(timer.current);
+      if (pendingRef.current) flush();
+    };
+  }, [flush]);
   const del = async (id: string) => {
     await supabase().from("brainstorm_sessions").delete().eq("id", id);
     toast("Session removed");

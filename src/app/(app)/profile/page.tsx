@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
@@ -32,8 +32,11 @@ export default function Profile() {
   const { session } = useAuth();
   const [form, setForm] = useState<Record<string, string>>({});
   const [satSuper, setSatSuper] = useState<number | null>(null);
-  const [state, setState] = useState<"idle" | "saving" | "saved">("idle");
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const formRef = useRef<Record<string, string>>({});
+  formRef.current = form;
+  const pending = useRef(false);
 
   useEffect(() => {
     if (!session) return;
@@ -62,29 +65,46 @@ export default function Profile() {
     );
   }
 
+  // Persist the latest form. Reads formRef so it can also flush on unmount.
+  const persist = useCallback(async () => {
+    if (!session) return;
+    pending.current = false;
+    const payload: Record<string, unknown> = { user_id: session.user.id };
+    for (const fl of FIELDS) {
+      const raw = (formRef.current[fl.k] || "").trim();
+      if (fl.type === "number") { const n = Number(raw); payload[fl.k] = raw === "" || !Number.isFinite(n) ? null : n; }
+      else payload[fl.k] = raw === "" ? null : raw;
+    }
+    const { error } = await supabase().from("profiles").upsert(payload, { onConflict: "user_id" });
+    setState(error ? "error" : "saved"); // error stays visible until the next successful save
+    if (!error) setTimeout(() => setState((s) => (s === "saved" ? "idle" : s)), 1500);
+  }, [session]);
+
   const set = (k: string, v: string) => {
-    const next = { ...form, [k]: v };
-    setForm(next);
+    setForm((p) => ({ ...p, [k]: v }));
+    pending.current = true;
     setState("saving");
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      const payload: Record<string, unknown> = { user_id: session.user.id };
-      for (const fl of FIELDS) {
-        const raw = (next[fl.k] || "").trim();
-        if (fl.type === "number") { const n = Number(raw); payload[fl.k] = raw === "" || !Number.isFinite(n) ? null : n; }
-        else payload[fl.k] = raw === "" ? null : raw;
-      }
-      const { error } = await supabase().from("profiles").upsert(payload, { onConflict: "user_id" });
-      setState(error ? "idle" : "saved"); // never show a false "Saved" on failure
-    }, 600);
+    timer.current = setTimeout(persist, 600);
   };
+
+  // Warn before leaving with an unsaved edit, and flush the pending save on unmount.
+  useEffect(() => {
+    const onBU = (e: BeforeUnloadEvent) => { if (pending.current) { e.preventDefault(); e.returnValue = ""; } };
+    window.addEventListener("beforeunload", onBU);
+    return () => {
+      window.removeEventListener("beforeunload", onBU);
+      if (timer.current) clearTimeout(timer.current);
+      if (pending.current) persist();
+    };
+  }, [persist]);
 
   return (
     <>
       <div className="topbar">
         <div><h1>Profile</h1></div>
         <div className="toolbar">
-          <span className="muted" style={{ fontSize: 13 }}>{state === "saving" ? "Saving…" : state === "saved" ? "Saved ✓" : ""}</span>
+          <span className="muted" style={{ fontSize: 13, color: state === "error" ? "var(--danger)" : undefined }}>{state === "saving" ? "Saving…" : state === "saved" ? "Saved ✓" : state === "error" ? "Save failed — keep editing to retry" : ""}</span>
         </div>
       </div>
       <div className="card">

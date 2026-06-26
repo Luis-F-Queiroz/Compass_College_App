@@ -40,6 +40,7 @@ export default function SupplementPanel({
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<Essay | "new" | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [confirmDel, setConfirmDel] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!session) return;
@@ -74,7 +75,8 @@ export default function SupplementPanel({
         toast(j.error || "Couldn't create the Google Doc");
         return;
       }
-      await supabase().from("essays").update({ google_doc_url: j.url }).eq("id", e.id);
+      const { error } = await supabase().from("essays").update({ google_doc_url: j.url }).eq("id", e.id);
+      if (error) toast("Doc created, but couldn't save the link here — copy it from the new tab.");
       await load();
       window.open(j.url, "_blank", "noopener");
     } catch {
@@ -85,7 +87,9 @@ export default function SupplementPanel({
   };
 
   const del = async (id: string) => {
-    await supabase().from("essays").delete().eq("id", id);
+    setConfirmDel(null);
+    const { error } = await supabase().from("essays").delete().eq("id", id);
+    if (error) { toast("Couldn't remove — " + error.message); return; }
     toast("Removed");
     await load();
   };
@@ -125,7 +129,15 @@ export default function SupplementPanel({
                   {busy === e.id ? "…" : e.google_doc_url ? "Open Google Doc" : "Create Google Doc"}
                 </button>
                 <button className="btn-sm" onClick={() => setForm(e)}>Edit</button>
-                <button className="btn-sm danger" onClick={() => del(e.id)}>Remove</button>
+                {confirmDel === e.id ? (
+                  <>
+                    <span className="muted" style={{ fontSize: 12, alignSelf: "center" }}>Remove?</span>
+                    <button className="btn-sm" onClick={() => setConfirmDel(null)}>Cancel</button>
+                    <button className="btn-sm danger" onClick={() => del(e.id)}>Remove</button>
+                  </>
+                ) : (
+                  <button className="btn-sm danger" onClick={() => setConfirmDel(e.id)}>Remove</button>
+                )}
               </div>
             </div>
           ))}

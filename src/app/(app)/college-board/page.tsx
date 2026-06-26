@@ -26,6 +26,7 @@ export default function CollegeBoard() {
   const [loading, setLoading] = useState(true);
   const [editSit, setEditSit] = useState<Sitting | "new" | null>(null);
   const [editAp, setEditAp] = useState<AP | "new" | null>(null);
+  const [confirmDel, setConfirmDel] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!session) return;
@@ -50,8 +51,8 @@ export default function CollegeBoard() {
   const bestSingle = singleBest.length ? Math.max(...singleBest) : null;
   const lift = ss.total != null && bestSingle != null ? ss.total - bestSingle : null;
 
-  const delSit = async (id: string) => { await supabase().from("sat_sittings").delete().eq("id", id); toast("Removed"); await load(); };
-  const delAp = async (id: string) => { await supabase().from("ap_scores").delete().eq("id", id); toast("Removed"); await load(); };
+  const delSit = async (id: string) => { setConfirmDel(null); const { error } = await supabase().from("sat_sittings").delete().eq("id", id); if (error) { toast("Couldn't remove — " + error.message); return; } toast("Removed"); await load(); };
+  const delAp = async (id: string) => { setConfirmDel(null); const { error } = await supabase().from("ap_scores").delete().eq("id", id); if (error) { toast("Couldn't remove — " + error.message); return; } toast("Removed"); await load(); };
 
   const ap45 = aps.filter((a) => (a.score ?? 0) >= 4).length;
 
@@ -109,7 +110,11 @@ export default function CollegeBoard() {
                     <span className="cb-score total">{total ?? "—"}<small>total</small></span>
                     <span className="cb-row-act">
                       <button className="btn-sm" onClick={() => setEditSit(s)}>Edit</button>
-                      <button className="btn-sm danger" onClick={() => delSit(s.id)}>Delete</button>
+                      {confirmDel === s.id ? (
+                        <><button className="btn-sm" onClick={() => setConfirmDel(null)}>Cancel</button><button className="btn-sm danger" onClick={() => delSit(s.id)}>Delete</button></>
+                      ) : (
+                        <button className="btn-sm danger" onClick={() => setConfirmDel(s.id)}>Delete</button>
+                      )}
                     </span>
                   </div>
                 );
@@ -145,7 +150,11 @@ export default function CollegeBoard() {
                   <span className={"chip " + ((a.score ?? 0) >= 4 ? "ok" : (a.score ?? 0) === 3 ? "blue" : "dim")}>{a.score ?? "—"}/5</span>
                   <span className="cb-row-act">
                     <button className="btn-sm" onClick={() => setEditAp(a)}>Edit</button>
-                    <button className="btn-sm danger" onClick={() => delAp(a.id)}>Delete</button>
+                    {confirmDel === a.id ? (
+                      <><button className="btn-sm" onClick={() => setConfirmDel(null)}>Cancel</button><button className="btn-sm danger" onClick={() => delAp(a.id)}>Delete</button></>
+                    ) : (
+                      <button className="btn-sm danger" onClick={() => setConfirmDel(a.id)}>Delete</button>
+                    )}
                   </span>
                 </div>
               ))}

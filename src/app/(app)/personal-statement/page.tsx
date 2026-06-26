@@ -52,7 +52,8 @@ export default function PersonalStatement() {
         toast(j.error || "Couldn't create the Google Doc");
         return;
       }
-      await supabase().from("essays").update({ google_doc_url: j.url }).eq("id", d.id);
+      const { error } = await supabase().from("essays").update({ google_doc_url: j.url }).eq("id", d.id);
+      if (error) toast("Doc created, but couldn't save the link here — copy it from the new tab.");
       await load();
       window.open(j.url, "_blank", "noopener");
     } catch {

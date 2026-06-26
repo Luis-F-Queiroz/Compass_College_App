@@ -9,8 +9,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <ToastProvider>
         <AccessGate>
           <div className="app">
+            <a href="#main" className="skip-link">Skip to main content</a>
             <Sidebar />
-            <main className="main">{children}</main>
+            <main id="main" className="main" tabIndex={-1}>{children}</main>
           </div>
         </AccessGate>
       </ToastProvider>
