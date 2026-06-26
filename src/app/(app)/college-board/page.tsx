@@ -66,7 +66,7 @@ export default function CollegeBoard() {
           <p className="crumb">Your SAT sittings (auto-superscored) and AP scores.</p>
         </div>
         <div className="toolbar">
-          <a className="btn" href="https://account.collegeboard.org/login/" target="_blank" rel="noopener noreferrer">Send Your Scores</a>
+          <a className="btn" href="https://satsuite.collegeboard.org/sat/scores/sending-scores" target="_blank" rel="noopener noreferrer">Send Your Scores</a>
         </div>
       </div>
 
@@ -208,8 +208,7 @@ function SittingForm({ record, uid, onClose, onSaved }: { record: Sitting | null
     <Modal open onClose={onClose} title={record ? "Edit SAT sitting" : "New SAT sitting"} footer={footer}>
       <div className="form">
         <div className="field full"><label>Label (e.g. &quot;March 2026&quot;)</label><input value={f.label} onChange={(e) => set("label", e.target.value)} /></div>
-        <div className="field"><label>Test date</label><input type="date" value={f.test_date} onChange={(e) => set("test_date", e.target.value)} /></div>
-        <div className="field" />
+        <div className="field full"><label>Test date</label><input type="date" value={f.test_date} onChange={(e) => set("test_date", e.target.value)} /></div>
         <div className="field"><label>Reading &amp; Writing (200–800)</label><input type="number" value={f.rw} onChange={(e) => set("rw", e.target.value)} /></div>
         <div className="field"><label>Math (200–800)</label><input type="number" value={f.math} onChange={(e) => set("math", e.target.value)} /></div>
       </div>

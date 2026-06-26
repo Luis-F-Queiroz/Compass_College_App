@@ -111,6 +111,11 @@ export default function CompetitionsBoard() {
                   <span className="ccol-count">{items.length}</span>
                 </div>
                 <div className="ccol-body">
+                  {st === "Unsorted" && (
+                    <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>
+                      Unrecognized status — edit each to a valid status to sort it into the board.
+                    </div>
+                  )}
                   <AnimatePresence initial={false}>
                     {items.map((c) => (
                       <CompCard key={c.id} c={c} onEdit={() => setEditing(c)} onArchive={() => doArchive(c.id)} />
@@ -250,7 +255,7 @@ function CompetitionForm({
     <>
       {confirming ? (
         <span className="inline-confirm" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="muted" style={{ fontSize: 13 }}>Delete — can’t be undone.</span>
+          <span className="muted" style={{ fontSize: 13 }}>Delete “{str(record?.name) || "this competition"}”?</span>
           <button className="btn-sm" onClick={() => setConfirming(false)}>Cancel</button>
           <button className="btn-sm danger" onClick={doDelete}>Delete</button>
         </span>

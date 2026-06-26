@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
@@ -33,6 +34,7 @@ const IN_PROGRESS = ["Planning to apply", "Not started", "In progress", "Conside
 
 export default function Dashboard() {
   const { session, loading } = useAuth();
+  const router = useRouter();
   const [data, setData] = useState<{ colleges: AnyRow[]; essays: AnyRow[]; tasks: AnyRow[]; ideas: AnyRow[] } | null>(null);
 
   useEffect(() => {
@@ -90,11 +92,11 @@ export default function Dashboard() {
   const daysToNext = upcoming.length ? upcoming[0].days : null;
   const recentIdeas = (d?.ideas || []).slice(0, 5);
 
-  const kpis: { v: number | string; l: string; alert?: boolean }[] = [
-    { v: daysToNext == null ? "—" : daysToNext, l: "Days to next deadline" },
-    { v: today.length, l: "Tasks due today" },
-    { v: overdue.length, l: "Overdue tasks", alert: overdue.length > 0 },
-    { v: inProgress.length, l: "Applications in progress" },
+  const kpis: { v: number | string; l: string; alert?: boolean; href?: string }[] = [
+    { v: daysToNext == null ? "None" : daysToNext, l: "Days to next deadline" },
+    { v: today.length, l: "Tasks due today", href: "/tasks" },
+    { v: overdue.length, l: "Overdue tasks", alert: overdue.length > 0, href: "/tasks" },
+    { v: inProgress.length, l: "Applications in progress", href: "/colleges" },
     { v: essaysNotFinal.length, l: "Essays not final" },
   ];
 
@@ -105,7 +107,15 @@ export default function Dashboard() {
       <div className="topbar"><div><h1>Dashboard</h1></div></div>
       <motion.div className="kpis" variants={stagger} initial="hidden" animate="show">
         {kpis.map((k) => (
-          <motion.div className="kpi" key={k.l} variants={item}>
+          <motion.div
+            className={"kpi" + (k.href ? " kpi-link" : "")}
+            key={k.l}
+            variants={item}
+            role={k.href ? "link" : undefined}
+            tabIndex={k.href ? 0 : undefined}
+            onClick={k.href ? () => router.push(k.href!) : undefined}
+            onKeyDown={k.href ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(k.href!); } } : undefined}
+          >
             <div className="v" style={k.alert ? { color: "var(--danger)" } : undefined}>{k.v}</div>
             <div className="l">{k.l}</div>
           </motion.div>

@@ -56,7 +56,6 @@ export const SPECS: Record<string, Spec> = {
       { k: "testing_requirement", label: "Testing", type: "select", options: TESTING },
       { k: "interview", label: "Interview", type: "select", options: INTERVIEW },
       { k: "website_url", label: "Website URL", type: "url" },
-      { k: "portal_url", label: "Portal URL", type: "url" },
       { k: "logo_url", label: "Logo URL (optional)", type: "url" },
       { k: "reasons_for_applying", label: "Why this school", type: "textarea" },
       { k: "notes", label: "Notes", type: "textarea" },

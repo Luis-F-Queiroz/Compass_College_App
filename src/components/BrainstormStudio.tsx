@@ -109,7 +109,13 @@ export default function BrainstormStudio() {
         {loading ? (
           <span className="skel skel-row" style={{ width: "55%" }} />
         ) : !active ? (
-          <div className="empty"><div className="big">No brainstorm sessions yet</div>Start one — try a different angle in each (Brainstorm 1, 2, 3…), all saved here.</div>
+          <div className="empty">
+            <div className="big">No brainstorm sessions yet</div>
+            Start one — try a different angle in each (Brainstorm 1, 2, 3…), all saved here.
+            <div style={{ marginTop: 12 }}>
+              <button className="btn primary" onClick={addSession}>Start brainstorming</button>
+            </div>
+          </div>
         ) : (
           <div className="bs-panel">
             <div className="bs-row">

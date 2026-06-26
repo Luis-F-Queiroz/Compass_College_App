@@ -31,6 +31,9 @@ function fmtVal(v: unknown) {
   const s = typeof v === "string" ? v : JSON.stringify(v);
   return s == null ? "—" : s.length > 60 ? s.slice(0, 57) + "…" : s;
 }
+function fullVal(v: unknown) {
+  return typeof v === "string" ? v : JSON.stringify(v);
+}
 
 export default function SyncDashboard() {
   const { session } = useAuth();
@@ -130,7 +133,7 @@ export default function SyncDashboard() {
                       r.conflicts.map((c, i) => (
                         <div key={i} className="conflict-row">
                           <span className="muted" style={{ fontSize: 13 }}>
-                            <b>{c.field}</b>: keep “{fmtVal(c.existing_value)}” vs incoming “{fmtVal(c.incoming_value)}”
+                            <b>{c.field}</b>: keep <span title={fullVal(c.existing_value)}>“{fmtVal(c.existing_value)}”</span> vs incoming <span title={fullVal(c.incoming_value)}>“{fmtVal(c.incoming_value)}”</span>
                           </span>
                           <span className="conflict-actions">
                             <button className="btn-sm" disabled={busy === id + c.field} onClick={() => doApply(r.entity, id, c.field, c.incoming_value)}>Apply incoming</button>
@@ -141,7 +144,7 @@ export default function SyncDashboard() {
                       <div className="muted" style={{ fontSize: 13 }}>Unverified — confirm in the {r.entity} page, then mark reviewed.</div>
                     )}
                     <div style={{ marginTop: 8 }}>
-                      <button className="btn-sm" disabled={busy === id + "_ok"} onClick={() => doReviewed(r.entity, id)}>Mark reviewed</button>
+                      <button className="btn-sm" disabled={busy === id + "_ok"} onClick={() => doReviewed(r.entity, id)}>{r.conflicts.length > 0 ? "Keep existing" : "Mark reviewed"}</button>
                     </div>
                   </motion.div>
                 );
