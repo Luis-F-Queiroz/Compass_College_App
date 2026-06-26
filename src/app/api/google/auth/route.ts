@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     client_id: clientId,
     redirect_uri: `${u.origin}/api/google/callback`,
     response_type: "code",
-    scope: "https://www.googleapis.com/auth/drive.file",
+    scope: "https://www.googleapis.com/auth/drive",
     access_type: "offline", // request a refresh token
     prompt: "consent", // force a refresh token every time
     include_granted_scopes: "true",

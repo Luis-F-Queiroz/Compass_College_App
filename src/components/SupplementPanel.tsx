@@ -68,7 +68,7 @@ export default function SupplementPanel({
       const res = await fetch("/api/create-doc", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: `${institution.name} — ${e.title || "Supplement"}` }),
+        body: JSON.stringify({ title: `${institution.name} — ${e.title || "Supplement"}`, kind: "supplement", school: institution.name }),
       });
       const j = await res.json();
       if (!res.ok || !j.url) {

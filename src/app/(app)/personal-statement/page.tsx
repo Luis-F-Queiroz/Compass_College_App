@@ -45,7 +45,7 @@ export default function PersonalStatement() {
       const res = await fetch("/api/create-doc", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: `Personal Statement — ${d.title || "Draft"}` }),
+        body: JSON.stringify({ title: `Personal Statement — ${d.title || "Draft"}`, kind: "personal_statement" }),
       });
       const j = await res.json();
       if (!res.ok || !j.url) {
