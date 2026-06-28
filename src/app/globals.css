@@ -34,7 +34,8 @@ a:hover{text-decoration:underline}
 .brand .sub{display:block;margin-top:3px;color:#86868b;font-size:12px;letter-spacing:-0.12px}
 .nav{display:flex;flex-direction:column;gap:2px;flex:1}
 .nav-item{display:flex;align-items:center;gap:10px;color:var(--on-dark-muted);padding:10px 12px;border-radius:var(--r-sm);cursor:pointer;font-size:15px;letter-spacing:-0.224px;transition:background .12s ease,transform .08s ease;user-select:none}
-.nav-item .ic{width:18px;text-align:center;opacity:.9}
+.nav-item .ic{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;opacity:.9}
+.nav-item .ic svg{display:block}
 .nav-item:hover{background:rgba(255,255,255,.06)}
 .nav-item:active{transform:scale(.95)}
 .nav-item{position:relative}
