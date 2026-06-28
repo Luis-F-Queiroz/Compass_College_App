@@ -37,6 +37,7 @@ export default function Profile() {
   const formRef = useRef<Record<string, string>>({});
   formRef.current = form;
   const pending = useRef(false);
+  const [blind, setBlind] = useState(false); // master privacy "blind" — masks sensitive values (display only)
 
   useEffect(() => {
     if (!session) return;
@@ -55,6 +56,11 @@ export default function Profile() {
       setSatSuper(superscore((sit.data as { rw: number | null; math: number | null }[]) ?? []).total);
     })();
   }, [session]);
+
+  // Remember the privacy-blind preference across visits (presentation-only; never affects saved data).
+  useEffect(() => {
+    try { setBlind(localStorage.getItem("compass_profile_blind") === "1"); } catch { /* localStorage unavailable */ }
+  }, []);
 
   if (!session) {
     return (
@@ -88,6 +94,12 @@ export default function Profile() {
     timer.current = setTimeout(persist, 600);
   };
 
+  const toggleBlind = () => setBlind((b) => {
+    const n = !b;
+    try { localStorage.setItem("compass_profile_blind", n ? "1" : "0"); } catch { /* ignore */ }
+    return n;
+  });
+
   // Warn before leaving with an unsaved edit, and flush the pending save on unmount.
   useEffect(() => {
     const onBU = (e: BeforeUnloadEvent) => { if (pending.current) { e.preventDefault(); e.returnValue = ""; } };
@@ -104,12 +116,22 @@ export default function Profile() {
       <div className="topbar">
         <div><h1>Profile</h1></div>
         <div className="toolbar">
+          <button className="btn" onClick={toggleBlind} aria-pressed={blind} title={blind ? "Show sensitive info" : "Hide sensitive info"}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+                {blind && <path d="M3 3l18 18" />}
+              </svg>
+              {blind ? "Show info" : "Hide info"}
+            </span>
+          </button>
           <span className="muted" style={{ fontSize: 13, color: state === "error" ? "var(--danger)" : undefined }}>{state === "saving" ? "Saving…" : state === "saved" ? "Saved ✓" : state === "error" ? "Save failed — keep editing to retry" : ""}</span>
         </div>
       </div>
       <div className="card">
         <div className="card-b" style={{ paddingTop: 16 }}>
-          <div className="form">
+          <div className={"form" + (blind ? " blinded" : "")}>
             {FIELDS.map((fl) => (
               <div className="field" key={fl.k}>
                 <label>{fl.label}</label>
@@ -122,7 +144,7 @@ export default function Profile() {
             ))}
           </div>
           <div className="prof-super">
-            <div><span className="prof-super-n">{satSuper ?? "—"}</span> <span className="prof-super-l">SAT superscore</span></div>
+            <div><span className="prof-super-n">{blind ? "•••" : (satSuper ?? "—")}</span> <span className="prof-super-l">SAT superscore</span></div>
             <Link className="btn-sm" href="/college-board">Manage SAT &amp; AP scores →</Link>
           </div>
           <div className="brandrow">

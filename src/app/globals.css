@@ -221,6 +221,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .task-done-toggle{display:inline-flex;align-items:center;gap:8px;background:transparent;border:none;color:var(--ink-48);font-size:12px;font-weight:600;cursor:pointer;padding:4px 2px;text-transform:uppercase;letter-spacing:.04em}
 .task-done-toggle:hover{color:var(--ink)}
 @media (max-width:560px){.task-add-title{flex-basis:100%}}
+/* Profile privacy "blind": mask sensitive field values on demand (presentation-only — saved data is unchanged) */
+.form input{transition:filter .12s ease}
+.form.blinded input{filter:blur(5px)}
 .brandrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .brandbtn{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--hairline);background:#fff;color:var(--ink);border-radius:var(--r-md);padding:9px 15px;font-size:14px;letter-spacing:-0.224px}
 .brandbtn:hover{background:var(--pearl);text-decoration:none}
