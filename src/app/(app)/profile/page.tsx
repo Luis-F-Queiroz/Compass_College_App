@@ -5,27 +5,29 @@ import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
 import { superscore } from "@/lib/collegeBoard";
 
-type PField = { k: string; label: string; type?: "text" | "number" | "date" };
+// `sensitive: true` = masked by the privacy blind (PII / contact / ID / home address / guardians).
+// Academic stats and basic identity (name, citizenship, GPA, year, scores) stay visible.
+type PField = { k: string; label: string; type?: "text" | "number" | "date"; sensitive?: boolean };
 const FIELDS: PField[] = [
   { k: "full_name", label: "Full name" },
   { k: "preferred_name", label: "Preferred name" },
-  { k: "date_of_birth", label: "Date of birth", type: "date" },
-  { k: "document_id", label: "Document / ID" },
+  { k: "date_of_birth", label: "Date of birth", type: "date", sensitive: true },
+  { k: "document_id", label: "Document / ID", sensitive: true },
   { k: "citizenship", label: "Citizenship" },
-  { k: "email", label: "Email" },
-  { k: "phone", label: "Phone" },
-  { k: "address", label: "Street address" },
-  { k: "city", label: "City" },
+  { k: "email", label: "Email", sensitive: true },
+  { k: "phone", label: "Phone", sensitive: true },
+  { k: "address", label: "Street address", sensitive: true },
+  { k: "city", label: "City", sensitive: true },
   { k: "state_region", label: "State / region" },
-  { k: "zip", label: "ZIP / postal" },
+  { k: "zip", label: "ZIP / postal", sensitive: true },
   { k: "country", label: "Country" },
   { k: "high_school", label: "High school" },
   { k: "graduation_year", label: "Graduation year", type: "number" },
   { k: "gpa", label: "GPA" },
   { k: "act", label: "ACT", type: "number" },
   { k: "toefl", label: "TOEFL", type: "number" },
-  { k: "parent1_name", label: "Parent / guardian 1" },
-  { k: "parent2_name", label: "Parent / guardian 2" },
+  { k: "parent1_name", label: "Parent / guardian 1", sensitive: true },
+  { k: "parent2_name", label: "Parent / guardian 2", sensitive: true },
 ];
 
 export default function Profile() {
@@ -131,20 +133,30 @@ export default function Profile() {
       </div>
       <div className="card">
         <div className="card-b" style={{ paddingTop: 16 }}>
-          <div className={"form" + (blind ? " blinded" : "")}>
+          <div className="form">
             {FIELDS.map((fl) => (
               <div className="field" key={fl.k}>
                 <label>{fl.label}</label>
-                <input
-                  type={fl.type === "number" ? "number" : fl.type === "date" ? "date" : "text"}
-                  value={form[fl.k] || ""}
-                  onChange={(e) => set(fl.k, e.target.value)}
-                />
+                {blind && fl.sensitive ? (
+                  <div className="field-masked" title="Hidden — turn the blind off to reveal" aria-label={`${fl.label}: hidden`}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="5" y="11" width="14" height="9" rx="2" />
+                      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                    </svg>
+                    <span className="field-masked-dots">••••••••</span>
+                  </div>
+                ) : (
+                  <input
+                    type={fl.type === "number" ? "number" : fl.type === "date" ? "date" : "text"}
+                    value={form[fl.k] || ""}
+                    onChange={(e) => set(fl.k, e.target.value)}
+                  />
+                )}
               </div>
             ))}
           </div>
           <div className="prof-super">
-            <div><span className="prof-super-n">{blind ? "•••" : (satSuper ?? "—")}</span> <span className="prof-super-l">SAT superscore</span></div>
+            <div><span className="prof-super-n">{satSuper ?? "—"}</span> <span className="prof-super-l">SAT superscore</span></div>
             <Link className="btn-sm" href="/college-board">Manage SAT &amp; AP scores →</Link>
           </div>
           <div className="brandrow">
