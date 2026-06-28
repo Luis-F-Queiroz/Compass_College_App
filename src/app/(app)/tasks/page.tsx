@@ -1,4 +1,4 @@
-import EntityScreen from "@/components/EntityScreen";
+import TasksBoard from "@/components/TasksBoard";
 export default function Page() {
-  return <EntityScreen entity="tasks" />;
+  return <TasksBoard />;
 }
