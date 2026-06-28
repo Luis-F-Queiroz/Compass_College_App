@@ -34,16 +34,18 @@ function Mark({ size = 26 }: { size?: number }) {
 // Line icons for the page-selection nav. Monochrome, inherit the nav text color (currentColor),
 // thin round strokes — matched to the app's existing icon weight.
 function NavIcon({ name }: { name: string }) {
+  // College Board (acorn) and Personal Statement (Common App) use the official brand marks,
+  // rendered as a currentColor mask of the white PNG so they dim/brighten with the nav state
+  // exactly like the line icons — the shape is the brand mark's, the color follows the design system.
+  if (name === "college-board" || name === "personal-statement") {
+    return <span className={"nav-mask nav-mask-" + name} aria-hidden />;
+  }
   const body = (() => {
     switch (name) {
       case "dashboard":
         return (<><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /></>);
       case "colleges": // graduation cap
         return (<><path d="M3 9l9-4 9 4-9 4-9-4z" /><path d="M7 11v4.5c0 0 2 1.8 5 1.8s5-1.8 5-1.8V11" /><path d="M21 9v4.5" /></>);
-      case "personal-statement": // pencil
-        return (<><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" /></>);
-      case "college-board": // clipboard with lines (score report)
-        return (<><rect x="5" y="4" width="14" height="17" rx="2" /><rect x="8" y="2.5" width="8" height="4" rx="1" /><path d="M9 11h6" /><path d="M9 15h4" /></>);
       case "tasks": // checkbox with check
         return (<><rect x="3.5" y="3.5" width="17" height="17" rx="3" /><path d="M8 12l3 3 5-6" /></>);
       case "activities": // star

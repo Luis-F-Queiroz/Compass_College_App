@@ -36,6 +36,11 @@ a:hover{text-decoration:underline}
 .nav-item{display:flex;align-items:center;gap:10px;color:var(--on-dark-muted);padding:10px 12px;border-radius:var(--r-sm);cursor:pointer;font-size:15px;letter-spacing:-0.224px;transition:background .12s ease,transform .08s ease;user-select:none}
 .nav-item .ic{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;opacity:.9}
 .nav-item .ic svg{display:block}
+/* Brand nav icons (College Board acorn, Common App): the white PNG masks currentColor,
+   so the shape is the brand mark's but the color follows the nav state like the line icons. */
+.nav-mask{display:inline-block;width:18px;height:18px;background-color:currentColor;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
+.nav-mask-college-board{-webkit-mask-image:url(/logos/collegeboard-acorn-white.png);mask-image:url(/logos/collegeboard-acorn-white.png)}
+.nav-mask-personal-statement{-webkit-mask-image:url(/logos/commonapp-mark-white.png);mask-image:url(/logos/commonapp-mark-white.png)}
 .nav-item:hover{background:rgba(255,255,255,.06)}
 .nav-item:active{transform:scale(.95)}
 .nav-item{position:relative}
