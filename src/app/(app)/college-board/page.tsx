@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseBrowser";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/Toast";
 import Modal from "@/components/Modal";
-import { SAT_LOGO, AP_LOGO, CB_WORDMARK, CB_ICON, superscore, type Sitting } from "@/lib/collegeBoard";
+import { SAT_LOGO, AP_LOGO, CB_ICON, superscore, type Sitting } from "@/lib/collegeBoard";
 
 type AP = { id: string; course: string | null; score: number | null; exam_year: number | null };
 
@@ -60,9 +60,11 @@ export default function CollegeBoard() {
     <>
       <div className="topbar">
         <div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="cb-brand" src={CB_WORDMARK} alt="College Board" />
-          <h1 className="visually-hidden">College Board</h1>
+          <h1 className="brand-h1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="brand-mark" src={CB_ICON} alt="" />
+            College Board
+          </h1>
           <p className="crumb">Your SAT sittings (auto-superscored) and AP scores.</p>
         </div>
         <div className="toolbar">

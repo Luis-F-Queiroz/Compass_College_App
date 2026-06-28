@@ -339,9 +339,19 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .cb-brand{height:30px;width:auto;max-width:100%;display:block;margin-bottom:5px}
 .cb-footer{display:flex;align-items:center;gap:12px}
 .cb-footer-mark{height:30px;width:auto;max-width:100%;display:block;flex:none}
-/* Common App white icon on a navy badge (Personal Statement button) */
+/* Common App white icon on a navy badge (Personal Statement title) */
 .ca-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;background:#1d3a6b;flex:none}
 .ca-badge img{width:14px;height:14px;display:block}
+.ca-badge.ca-badge-lg{width:30px;height:30px;border-radius:7px}
+.ca-badge.ca-badge-lg img{width:20px;height:20px}
+/* Page title with a brand mark to its left (College Board acorn, Common App badge) */
+.brand-h1{display:inline-flex;align-items:center;gap:10px;margin:0;font-size:30px;font-weight:600;letter-spacing:-0.374px;line-height:1.1}
+.brand-mark{height:30px;width:auto;display:block;flex:none}
+/* Full Common App logo as a link (replaces the old text button) */
+.ca-logo-link{display:inline-flex;align-items:center;transition:opacity .12s ease}
+.ca-logo-link img{height:30px;width:auto;display:block}
+.ca-logo-link:hover{opacity:.85}
+@media (max-width:860px){.brand-mark,.ca-badge.ca-badge-lg{height:24px;width:24px}.brand-h1{font-size:23px}.ca-logo-link img{height:26px}}
 /* ===== Mobile / small-screen optimization (must follow base rules to override) ===== */
 @media (max-width:860px){
   .app{grid-template-columns:1fr}

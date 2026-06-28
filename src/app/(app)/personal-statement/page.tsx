@@ -73,16 +73,19 @@ export default function PersonalStatement() {
     <>
       <div className="topbar">
         <div>
-          <h1>Personal Statement</h1>
-          <p className="crumb">One essay, the same for every college — submitted through the Common App.</p>
-        </div>
-        <div className="toolbar">
-          <a className="btn commonapp" href="https://www.commonapp.org" target="_blank" rel="noopener noreferrer">
-            <span className="ca-badge">
+          <h1 className="brand-h1">
+            <span className="ca-badge ca-badge-lg" aria-hidden>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logos/commonapp-icon.png" alt="" />
             </span>
-            Common App
+            Personal Statement
+          </h1>
+          <p className="crumb">One essay, the same for every college — submitted through the Common App.</p>
+        </div>
+        <div className="toolbar">
+          <a className="ca-logo-link" href="https://www.commonapp.org" target="_blank" rel="noopener noreferrer" aria-label="Open the Common App">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/commonapp-logo.png" alt="Common App" />
           </a>
         </div>
       </div>
