@@ -4,6 +4,41 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabaseBrowser";
 
+const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function fmtWhen(s: string | null) {
+  if (!s) return "";
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${M[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// Google Drive brand mark.
+function DriveLogo() {
+  return (
+    <svg viewBox="0 0 87.3 78" aria-hidden="true">
+      <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da" />
+      <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47" />
+      <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335" />
+      <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d" />
+      <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc" />
+      <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00" />
+    </svg>
+  );
+}
+
+// Claude brand mark (stylized sunburst in Claude's orange).
+function ClaudeLogo() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <g stroke="#D97757" strokeWidth="2.1" strokeLinecap="round">
+        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+          <line key={deg} x1="12" y1="2.6" x2="12" y2="9.4" transform={`rotate(${deg} 12 12)`} />
+        ))}
+      </g>
+    </svg>
+  );
+}
+
 export default function Settings() {
   const { session } = useAuth();
   const [connectedAt, setConnectedAt] = useState<string | null>(null);
@@ -42,11 +77,17 @@ export default function Settings() {
         </div>
       </div>
 
+      <h2 className="set-group">Connections</h2>
+
+      {/* Google Drive */}
       <div className="card">
-        <div className="card-h"><h3>Google Docs</h3></div>
+        <div className="card-h">
+          <span className="set-int-title"><span className="set-int-logo"><DriveLogo /></span><h3>Google Drive</h3></span>
+          {checked && connectedAt && <span className="chip ok">Connected</span>}
+        </div>
         <div className="card-b">
           <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-            Connect your Google account so the site can create supplement Docs in your Drive (shared so your counselor can edit).
+            Connect Google Drive so Compass can create your essay Google Docs and file them into your Drive folders (Essays → Personal Statement / Supplementals), shared so your counselor can edit.
           </p>
           {note === "connected" && <div className="chip ok" style={{ marginBottom: 12 }}>Google connected ✓</div>}
           {note === "error" && <div className="chip danger" style={{ marginBottom: 12 }}>Couldn&apos;t connect — try again</div>}
@@ -56,10 +97,46 @@ export default function Settings() {
             <dl className="kv">
               <dt>Status</dt>
               <dd>Connected · <a href="/api/google/auth">reconnect</a></dd>
+              <dt>Since</dt>
+              <dd>{fmtWhen(connectedAt)}</dd>
             </dl>
           ) : (
-            <a className="btn primary" href="/api/google/auth">Connect Google</a>
+            <a className="btn primary" href="/api/google/auth">Connect Google Drive</a>
           )}
+        </div>
+      </div>
+
+      {/* Claude */}
+      <div className="card">
+        <div className="card-h">
+          <span className="set-int-title"><span className="set-int-logo"><ClaudeLogo /></span><h3>Claude</h3></span>
+          <span className="chip dim">Coming soon</span>
+        </div>
+        <div className="card-b">
+          <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
+            Connect Claude to power AI-assisted brainstorming, supplement feedback, and Narrative-Method guidance — grounded in your profile and activities.
+          </p>
+          <dl className="kv">
+            <dt>Status</dt>
+            <dd>Not connected — available in a future update.</dd>
+          </dl>
+          <button className="btn" disabled title="Claude integration is coming soon">Connect Claude</button>
+        </div>
+      </div>
+
+      <h2 className="set-group">About</h2>
+
+      <div className="card">
+        <div className="card-h"><h3>Compass</h3></div>
+        <div className="card-b">
+          <dl className="kv">
+            <dt>What it is</dt>
+            <dd>Your private command center for the whole college-application process.</dd>
+            <dt>Source of truth</dt>
+            <dd>Records flow from CoWork → validated → here; review and roll back on the Sync page.</dd>
+            <dt>Privacy</dt>
+            <dd>Your data stays in your own cloud workspace; the Profile page has a privacy blind to hide sensitive fields on screen.</dd>
+          </dl>
         </div>
       </div>
     </>

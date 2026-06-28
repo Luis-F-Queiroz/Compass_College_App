@@ -225,6 +225,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
    input, so the value isn't shown OR present in the DOM. Presentation-only — saved data is unchanged. */
 .field-masked{display:flex;align-items:center;gap:8px;width:100%;font-size:15px;line-height:1.4;padding:9px 12px;border:1px dashed var(--hairline);border-radius:var(--r-sm);background:var(--parchment);color:var(--ink-48);user-select:none}
 .field-masked-dots{letter-spacing:3px}
+/* Settings: section group labels + integration (connection) card headers */
+.set-group{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-48);margin:26px 4px 10px}
+.set-int-title{display:inline-flex;align-items:center;gap:11px;min-width:0}
+.set-int-logo{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.set-int-logo svg{width:23px;height:23px;display:block}
 .brandrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .brandbtn{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--hairline);background:#fff;color:var(--ink);border-radius:var(--r-md);padding:9px 15px;font-size:14px;letter-spacing:-0.224px}
 .brandbtn:hover{background:var(--pearl);text-decoration:none}
