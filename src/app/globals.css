@@ -230,6 +230,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-foc
 .set-int-title{display:inline-flex;align-items:center;gap:11px;min-width:0}
 .set-int-logo{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .set-int-logo svg{width:23px;height:23px;display:block}
+.set-int-wordmark{height:26px;width:auto;display:block}
 .brandrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .brandbtn{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--hairline);background:#fff;color:var(--ink);border-radius:var(--r-md);padding:9px 15px;font-size:14px;letter-spacing:-0.224px}
 .brandbtn:hover{background:var(--pearl);text-decoration:none}

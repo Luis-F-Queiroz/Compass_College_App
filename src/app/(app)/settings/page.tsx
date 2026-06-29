@@ -26,19 +26,6 @@ function DriveLogo() {
   );
 }
 
-// Claude brand mark (stylized sunburst in Claude's orange).
-function ClaudeLogo() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <g stroke="#D97757" strokeWidth="2.1" strokeLinecap="round">
-        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
-          <line key={deg} x1="12" y1="2.6" x2="12" y2="9.4" transform={`rotate(${deg} 12 12)`} />
-        ))}
-      </g>
-    </svg>
-  );
-}
-
 export default function Settings() {
   const { session } = useAuth();
   const [connectedAt, setConnectedAt] = useState<string | null>(null);
@@ -109,7 +96,10 @@ export default function Settings() {
       {/* Claude */}
       <div className="card">
         <div className="card-h">
-          <span className="set-int-title"><span className="set-int-logo"><ClaudeLogo /></span><h3>Claude</h3></span>
+          <span className="set-int-title">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="set-int-wordmark" src="/logos/claude-logo.png" alt="Claude" />
+          </span>
           <span className="chip dim">Coming soon</span>
         </div>
         <div className="card-b">
