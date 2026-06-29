@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabaseBrowser";
 
@@ -29,21 +30,36 @@ function DriveLogo() {
 export default function Settings() {
   const { session } = useAuth();
   const [connectedAt, setConnectedAt] = useState<string | null>(null);
+  const [coworkDisc, setCoworkDisc] = useState<string | null>(null); // null = Claude Cowork connected (default)
+  const [coworkBusy, setCoworkBusy] = useState(false);
   const [checked, setChecked] = useState(false);
 
   const load = useCallback(async () => {
     if (!session) return;
     const { data } = await supabase()
       .from("app_config")
-      .select("google_connected_at")
+      .select("google_connected_at, cowork_disconnected_at")
       .eq("user_id", session.user.id)
       .maybeSingle();
     setConnectedAt((data as any)?.google_connected_at ?? null);
+    setCoworkDisc((data as any)?.cowork_disconnected_at ?? null);
     setChecked(true);
   }, [session]);
   useEffect(() => {
     load();
   }, [load]);
+
+  // Connect / disconnect Claude Cowork (per-user, persisted in app_config; default = connected).
+  const setCowork = async (connect: boolean) => {
+    if (!session || coworkBusy) return;
+    setCoworkBusy(true);
+    const value = connect ? null : new Date().toISOString();
+    const { error } = await supabase()
+      .from("app_config")
+      .upsert({ user_id: session.user.id, cowork_disconnected_at: value }, { onConflict: "user_id" });
+    if (!error) setCoworkDisc(value);
+    setCoworkBusy(false);
+  };
 
   const note = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("google") : null;
 
@@ -93,24 +109,42 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Claude */}
+      {/* Claude Cowork */}
       <div className="card">
         <div className="card-h">
           <span className="set-int-title">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="set-int-wordmark" src="/logos/claude-logo.png" alt="Claude" />
+            <img className="set-int-wordmark" src="/logos/claude-cowork-logo.png" alt="Claude Cowork" />
           </span>
-          <span className="chip dim">Coming soon</span>
+          {checked && (coworkDisc ? <span className="chip dim">Disconnected</span> : <span className="chip ok">Connected</span>)}
         </div>
         <div className="card-b">
           <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-            Connect Claude to power AI-assisted brainstorming, supplement feedback, and Narrative-Method guidance — grounded in your profile and activities.
+            Claude Cowork maintains your workspace and syncs validated updates to this site — your school list, scores, tasks, essays, and counselor reports.
           </p>
-          <dl className="kv">
-            <dt>Status</dt>
-            <dd>Not connected — available in a future update.</dd>
-          </dl>
-          <button className="btn" disabled title="Claude integration is coming soon">Connect Claude</button>
+          {!checked ? (
+            <span className="skel skel-row" style={{ width: "40%" }} />
+          ) : !coworkDisc ? (
+            <>
+              <dl className="kv">
+                <dt>Status</dt>
+                <dd>Connected ✓ · <Link href="/sync">view sync activity</Link></dd>
+              </dl>
+              <button className="btn" onClick={() => setCowork(false)} disabled={coworkBusy} style={{ marginTop: 12 }}>
+                {coworkBusy ? "…" : "Disconnect"}
+              </button>
+            </>
+          ) : (
+            <>
+              <dl className="kv">
+                <dt>Status</dt>
+                <dd>Disconnected — CoWork updates won&apos;t sync here until you reconnect.</dd>
+              </dl>
+              <button className="btn primary" onClick={() => setCowork(true)} disabled={coworkBusy} style={{ marginTop: 12 }}>
+                {coworkBusy ? "…" : "Connect Claude Cowork"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
