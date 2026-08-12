@@ -1,6 +1,32 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Never let a slow or unreachable Supabase take the whole site down. Every auth call here is
+// bounded by this budget; if it is exceeded (or the call throws) the middleware "fails open" and
+// serves the page unauthenticated instead of hanging until Vercel kills the invocation with
+// MIDDLEWARE_INVOCATION_TIMEOUT (a 504 on every route). Normal auth round-trips are <500ms.
+const AUTH_BUDGET_MS = 5000;
+
+async function withBudget<T>(work: Promise<T>, label: string): Promise<T | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => {
+          console.error(`[compass] ${label} exceeded ${AUTH_BUDGET_MS}ms — serving unauthenticated`);
+          resolve(null);
+        }, AUTH_BUDGET_MS);
+      }),
+    ]);
+  } catch (e) {
+    console.error(`[compass] ${label} failed:`, (e as Error).message);
+    return null;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 /**
  * Single-user mode: silently sign the app in as the one owner account so there is
  * no login screen. The credentials live in server-only env vars (never shipped to
@@ -28,13 +54,19 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const { data: { session } } = await supabase.auth.getSession(); // local cookie check — no network when already signed in
+  // local cookie check — no network when already signed in, but can refresh over the network
+  const sessionResult = await withBudget(supabase.auth.getSession(), "getSession");
+  const session = sessionResult?.data.session ?? null;
+
   if (!session && process.env.SINGLE_USER_EMAIL && process.env.SINGLE_USER_PASSWORD) {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: process.env.SINGLE_USER_EMAIL,
-      password: process.env.SINGLE_USER_PASSWORD,
-    });
-    if (error) console.error("[compass] auto sign-in failed:", error.message);
+    const signIn = await withBudget(
+      supabase.auth.signInWithPassword({
+        email: process.env.SINGLE_USER_EMAIL,
+        password: process.env.SINGLE_USER_PASSWORD,
+      }),
+      "auto sign-in",
+    );
+    if (signIn?.error) console.error("[compass] auto sign-in failed:", signIn.error.message);
   }
 
   return response;

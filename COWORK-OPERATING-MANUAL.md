@@ -12,7 +12,7 @@ Set the working directory and npm cache once per shell, then run the three surfa
 
 ```bash
 # 0. Per-shell setup (the cache flag is MANDATORY on every npm/npx call)
-cd "/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app"
+cd "/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app"
 export npm_config_cache=/tmp/compass-npm-cache
 
 # 1. De-risk: build locally first — never deploy a build you haven't run
@@ -69,7 +69,7 @@ CoWork is the primary workspace and source of truth; this website is a downstrea
 |---|---|
 | Framework | Next.js 16 (App Router, TypeScript, Tailwind 4) + Framer Motion |
 | Backend | Supabase (Postgres + Row-Level Security) with silent single-user auto-login middleware |
-| App dir | `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app` |
+| App dir | `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app` |
 | Legacy reference | sibling `compass/` (single-file v1 — reference only, do not deploy) |
 | `package.json` scripts | `dev="next dev"`, `build="next build"`, `start="next start"`, `lint="eslint"` |
 | Default branch | `main` |
@@ -167,7 +167,7 @@ Never read, print, or paste secret values — not from `.env.local`, not from Ve
 Everything here runs from the app directory. Set it once per shell:
 
 ```bash
-cd "/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app"
+cd "/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app"
 ```
 
 **The golden rule: every deploy ends with a verify step.** Never declare "done" off a green build log alone — open the live URL (or its API) and confirm the change is actually there. The pipeline has three independent surfaces — **GitHub** (source), **Vercel** (hosting/runtime), and **Supabase** (database) — and they are NOT auto-synced into one button. Pushing to GitHub does not run migrations; running a migration does not redeploy the app. Drive each one deliberately.
@@ -221,6 +221,8 @@ npx --yes vercel@latest deploy --prod --yes
 The command prints a deployment URL and streams the build. Recurring build errors to fix before deploying are documented in [Gotchas §5](#5-known-typescript-build-pitfalls--fixes) (Supabase `.then()` destructuring, untyped callbacks, Framer Motion `Variants`).
 
 **Deployment Protection caveat:** the production deployment sits behind Vercel "Deployment Protection," so the public URL returns a login/SSO wall (HTTP 401) even after a clean deploy. Making it public is a **manual dashboard toggle Luis performs** — it cannot be reliably flipped via API/CLI, and attempting it is a security-sensitive action that trips an auto-mode permission prompt. If the live site is gated, that's expected; ask Luis to toggle it, don't try to script around it.
+
+> **Clarification (2026-07-02):** the paragraph above describes the **earlier** state and is kept for history. The **current** state is documented in [§2 of Non-negotiables](#2-the-site-is-public-at-httpsluiscollegeappvercelapp--entry-is-an-app-level-access-code) and the quick-reference table: **Deployment Protection is OFF**, the URL is public, and entry is controlled by the app-level access-code gate (`AccessGate.tsx`). Read post-deploy statuses accordingly — **200/307 = expected (public)**; a **401 means protection was toggled back ON** (then, and only then, the paragraph above applies). If these two sections ever disagree again, §2 wins.
 
 ### 3. Deploy via MCP + reading build logs
 
@@ -339,7 +341,7 @@ Public-safe identifiers you *may* write in code, docs, and commits: the GitHub r
 Secrets stay **out of the repo by construction.** Verify before assuming:
 
 ```bash
-cd "/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app"
+cd "/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app"
 grep -E '\.env|\.vercel' .gitignore   # confirms .env* and .vercel are ignored
 git ls-files | grep -i env            # should print NOTHING (no env file is tracked)
 ```
@@ -570,15 +572,15 @@ Ready-to-build items using the existing schema-driven pattern (spec + nav + rout
 
 ## Files referenced in this manual
 
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/package.json` — `dev` / `build` / `start` / `lint` scripts.
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/.vercel/repo.json` — local project link (`compass-college-app`, team `luis-queiroz-s-projects`); git-ignored. This is the repo-linked form; there is no `.vercel/project.json` (the bundled `.vercel/README.txt` references one that isn't present — the link still works).
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/supabase/migrations/0001_init.sql` — schema baseline + the comment/RLS convention new migrations must follow.
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/src/middleware.ts` — silent auto-login reading `SINGLE_USER_EMAIL` / `SINGLE_USER_PASSWORD`.
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/src/hooks/useCollection.ts` — generic per-table list/create/update/delete; `create()` injects `user_id`.
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/src/lib/specs.ts` — entity field-specs (field add/edit lives here).
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/src/components/EntityScreen.tsx` — generic table + animated modal + debounced auto-save.
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/src/components/Sidebar.tsx` — navigation (new-screen changes live here).
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/src/app/(app)/colleges/page.tsx` — reference shape for an entity route file (`<EntityScreen entity="colleges" />`).
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/src/app/(app)/dashboard/page.tsx` — reference for the Framer Motion `Variants` annotation pattern.
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/.env.local.example` — **NOT git-tracked** (caught by the `.env*` ignore rule) and **stale**: lists `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_ALLOWED_EMAIL`, but is missing `SINGLE_USER_EMAIL` / `SINGLE_USER_PASSWORD`. Not a reliable env-var reference — use Deploy Ops §5 or grep `src/` for `process.env.`.
-- `/Users/marcosrobertogomesdequeiroz/Documents/Claude CW College Apps/compass-app/.env.local` — local secrets; reference by location only, never read or print.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/package.json` — `dev` / `build` / `start` / `lint` scripts.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/.vercel/repo.json` — local project link (`compass-college-app`, team `luis-queiroz-s-projects`); git-ignored. This is the repo-linked form; there is no `.vercel/project.json` (the bundled `.vercel/README.txt` references one that isn't present — the link still works).
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/supabase/migrations/0001_init.sql` — schema baseline + the comment/RLS convention new migrations must follow.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/src/middleware.ts` — silent auto-login reading `SINGLE_USER_EMAIL` / `SINGLE_USER_PASSWORD`.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/src/hooks/useCollection.ts` — generic per-table list/create/update/delete; `create()` injects `user_id`.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/src/lib/specs.ts` — entity field-specs (field add/edit lives here).
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/src/components/EntityScreen.tsx` — generic table + animated modal + debounced auto-save.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/src/components/Sidebar.tsx` — navigation (new-screen changes live here).
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/src/app/(app)/colleges/page.tsx` — reference shape for an entity route file (`<EntityScreen entity="colleges" />`).
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/src/app/(app)/dashboard/page.tsx` — reference for the Framer Motion `Variants` annotation pattern.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/.env.local.example` — **NOT git-tracked** (caught by the `.env*` ignore rule) and **stale**: lists `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_ALLOWED_EMAIL`, but is missing `SINGLE_USER_EMAIL` / `SINGLE_USER_PASSWORD`. Not a reliable env-var reference — use Deploy Ops §5 or grep `src/` for `process.env.`.
+- `/Users/marcosrobertogomesdequeiroz/Documents/Lipe/College Apps/compass-app/.env.local` — local secrets; reference by location only, never read or print.
